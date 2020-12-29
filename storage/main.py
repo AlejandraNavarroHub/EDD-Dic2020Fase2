@@ -3,7 +3,14 @@
 # Copyright (c) 2020 TytusDb Team
 
 
-from storage import ListaBaseDatos, serealizar
+from avl import avlMode as avl
+from b import BMode as b
+from bplus import BPlusMode as bplus
+from dict import DictMode as dict
+from hash import HashMode as hash
+from isam import ISAMMode as isam
+from json import jsonMode as json
+
 import os, re, csv
 
 _storage = ListaBaseDatos.ListaBaseDatos()
@@ -61,7 +68,7 @@ __init__()
 # ==//== funciones con respecto a ListaBaseDatos ==//==
 # Se llama la función sobre la clase ListaBaseDatos
 
-def createDatabase(database: str, ) -> int:
+def createDatabase(database: str, mode: str, encoding: str) -> int:
     """Creates a database
 
         Parameters:\n
@@ -72,6 +79,8 @@ def createDatabase(database: str, ) -> int:
             1: an error ocurred
             2: database name occupied
     """
+
+    
 
     try:
         
