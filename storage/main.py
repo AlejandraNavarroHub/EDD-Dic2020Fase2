@@ -9,64 +9,38 @@ from bplus import BPlusMode as bplus
 from dict import DictMode as dict
 from hash import HashMode as hash
 from isam import ISAMMode as isam
-from json import jsonMode as json
+from jsonMode import jsonMode as json
 
-import os, re, csv
+import os, serealizar
 
-_storage = ListaBaseDatos.ListaBaseDatos()
-_main_path = os.getcwd()+"\\data\\hash"
-_db_name_pattern = "^[a-zA-Z][a-zA-Z0-9#@$_]*"
-
-
-def setDir(path: str) -> int:
-    """Sets new data location
-
-        Parameters:\n
-            path (str): new data path
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-    """
-
-    global _main_path
-    temp_path = path+"\\data"
-
-    try:
-        if os.path.isdir(path):
-
-            if not os.path.isdir(temp_path):
-                os.mkdir(temp_path)
-
-            _main_path = temp_path
-            ListaBaseDatos.main_path = temp_path
-
-            __init__()
-
-            return 0
-        
-        else:
-            return 1
-
-    except:
-        return 1
+_main_path = os.getcwd()+"\\data"
 
 
 def __init__():
 
-    if not os.path.isdir(os.getcwd()+"\\data"):
-        os.mkdir(os.getcwd()+"\\data")
+    global lista_general
+    lista_general=[]
+    #Lista de  [Nombre, modo, encoding]
+    
+    if not os.path.isfile(_main_path+"\\"+"cache.bin"):
+        serealizar.commit(lista_general, "cache", _main_path)
 
-    if not os.path.isdir(os.getcwd()+"\\data\\hash"):
-        os.mkdir(os.getcwd()+"\\data\\hash")
-        
-    for db in os.listdir(_main_path):
-        _storage.createDatabase(db)
-        
-__init__()
+    else:
+        lista_general = serealizar.rollback("cache", _main_path)
 
-# ==//== funciones con respecto a ListaBaseDatos ==//==
-# Se llama la función sobre la clase ListaBaseDatos
+
+    # for db in cada carpeta, append to lista_general
+
+def _Buscar(nombre: str):
+
+    for db in lista_general:
+
+        if nombre.casefold() == db[0].casefold():
+            return db
+
+    else:
+        return None
+
 
 def createDatabase(database: str, mode: str, encoding: str) -> int:
     """Creates a database
@@ -80,18 +54,44 @@ def createDatabase(database: str, mode: str, encoding: str) -> int:
             2: database name occupied
     """
 
-    
+    if _Buscar(database):
 
-    try:
-        
-        if re.search(_db_name_pattern, database):
-            return _storage.createDatabase(database)
+        if encoding not in ["utf8","ascii","iso-8859-1"]:
+            return 4
+
+        if mode == "avl":
+            val = avl.createDatabase(database)
+
+        elif mode == "b":
+            val =  b.createDatabase(database)
+
+        elif mode == "bplus":
+            val =  bplus.createDatabase(database)
+
+        elif mode == "hash":
+            val =  hash.createDatabase(database)
+
+        elif mode == "isam":
+            val =  isam.createDatabase(database)
+
+        elif mode == "json":
+            val =  json.createDatabase(database)
+
+        elif mode == "dict":
+            val =  dict.createDatabase(database)
 
         else:
-            return 1
+            return 3
+            
+        if val == 0:
+            lista_general.append([database, mode, encoding])
 
-    except:
-        return 1
+        return val
+
+    else:
+        return 2
+
+    
 
 
 def showDatabases() -> list:
@@ -101,7 +101,12 @@ def showDatabases() -> list:
             list: successful operation
     """
 
-    return _storage.showDatabases()
+    temp=[]
+
+    for db in lista_general:
+        temp.append(db[0])
+    
+    return temp
 
 
 def alterDatabase(databaseOld: str, databaseNew: str) -> int:
@@ -117,17 +122,49 @@ def alterDatabase(databaseOld: str, databaseNew: str) -> int:
             2: non-existent target database
             3: new database name occupied
     """
-    
-    try:
 
-        if re.search(_db_name_pattern, databaseOld) and re.search(_db_name_pattern, databaseNew):
-            return _storage.alterDatabase(databaseOld, databaseNew)
+    bd = _Buscar(databaseOld)
+
+    if not bd:
+
+        if not _Buscar(databaseNew):
+
+            mode = bd[1]
+
+            val=-1
+
+            if mode == "avl":
+                val = avl.alterDatabase(databaseOld, databaseNew)
+
+            elif mode == "b":
+                val =  b.alterDatabase(databaseOld, databaseNew)
+
+            elif mode == "bplus":
+                val =  bplus.alterDatabase(databaseOld, databaseNew)
+
+            elif mode == "hash":
+                val =  hash.alterDatabase(databaseOld, databaseNew)
+
+            elif mode == "isam":
+                val =  isam.alterDatabase(databaseOld, databaseNew)
+
+            elif mode == "json":
+                val =  json.alterDatabase(databaseOld, databaseNew)
+
+            elif mode == "dict":
+                val =  dict.alterDatabase(databaseOld, databaseNew)
+
+            
+            if val == 0:
+                bd[0]=databaseNew
+
+            return val
 
         else:
-            return 1
-            
-    except:
-        return 1
+            return 3
+
+    else:
+        return 2
 
 
 def dropDatabase(database: str) -> int:
@@ -142,16 +179,44 @@ def dropDatabase(database: str) -> int:
             2: non-existent database
     """
 
-    try:
+    bd = _Buscar(database)
 
-        return _storage.dropDatabase(database)
-    
-    except:
-        return 1
+    if not bd:
 
+        mode = bd[1]
+        
+        val=-1
 
-# ==//== funciones con respecto a BaseDatos ==//==
-# Primero se busca la base de datos y luego se llama la función sobre la clase BaseDatos
+        if mode == "avl":
+            val = avl.dropDatabase(database)
+
+        elif mode == "b":
+            val =  b.dropDatabase(database)
+
+        elif mode == "bplus":
+            val =  bplus.dropDatabase(database)
+
+        elif mode == "hash":
+            val =  hash.dropDatabase(database)
+
+        elif mode == "isam":
+            val =  isam.dropDatabase(database)
+
+        elif mode == "json":
+            val =  json.dropDatabase(database)
+
+        elif mode == "dict":
+            val =  dict.dropDatabase(database)
+
+        
+        if val == 0:
+            lista_general.remove(database)
+
+        return val
+
+    else:
+        return 2
+
 
 def createTable(database: str, table: str, numberColumns: int) -> int:
     """Creates a table
@@ -168,18 +233,40 @@ def createTable(database: str, table: str, numberColumns: int) -> int:
             3: table name ocuppied
     """
 
-    try:
+    bd = _Buscar(database)
 
-        temp = _storage.Buscar(database)
+    if not bd:
 
-        if temp:
-            return temp.createTable(table, numberColumns)
+        mode = bd[1]
+        
+        val=-1
 
-        else:
-            return 2
+        if mode == "avl":
+            val = avl.createTable(database, table, numberColumns)
 
-    except:
-        return 1
+        elif mode == "b":
+            val =  b.createTable(database, table, numberColumns)
+
+        elif mode == "bplus":
+            val =  bplus.createTable(database, table, numberColumns)
+
+        elif mode == "hash":
+            val =  hash.createTable(database, table, numberColumns)
+
+        elif mode == "isam":
+            val =  isam.createTable(database, table, numberColumns)
+
+        elif mode == "json":
+            val =  json.createTable(database, table, numberColumns)
+
+        elif mode == "dict":
+            val =  dict.createTable(database, table, numberColumns)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 def showTables(database: str) -> list:
@@ -193,13 +280,40 @@ def showTables(database: str) -> list:
             None: non-existent database
     """
 
-    temp = _storage.Buscar(database)
+    bd = _Buscar(database)
 
-    if temp:
-        return temp.showTables()
+    if not bd:
+
+        mode = bd[1]
+        
+        val=-1
+
+        if mode == "avl":
+            val = avl.showTables(database)
+
+        elif mode == "b":
+            val =  b.showTables(database)
+
+        elif mode == "bplus":
+            val =  bplus.showTables(database)
+
+        elif mode == "hash":
+            val =  hash.showTables(database)
+
+        elif mode == "isam":
+            val =  isam.showTables(database)
+
+        elif mode == "json":
+            val =  json.showTables(database)
+
+        elif mode == "dict":
+            val =  dict.showTables(database)
+
+        
+        return val
 
     else:
-        return None
+        return 2
 
 
 def extractTable(database: str, table: str) -> list:
@@ -214,18 +328,40 @@ def extractTable(database: str, table: str) -> list:
             None: non-existent database, non-existent table, an error ocurred
     """
 
-    try:
+    bd = _Buscar(database)
 
-        temp = _storage.Buscar(database)
+    if not bd:
 
-        if temp:
-            return temp.extractTable(table)
+        mode = bd[1]
+        
+        val=-1
 
-        else:
-            return None
-            
-    except:
-        return None
+        if mode == "avl":
+            val = avl.extractTable(database, table)
+
+        elif mode == "b":
+            val =  b.extractTable(database, table)
+
+        elif mode == "bplus":
+            val =  bplus.extractTable(database, table)
+
+        elif mode == "hash":
+            val =  hash.extractTable(database, table)
+
+        elif mode == "isam":
+            val =  isam.extractTable(database, table)
+
+        elif mode == "json":
+            val =  json.extractTable(database, table)
+
+        elif mode == "dict":
+            val =  dict.extractTable(database, table)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
@@ -243,18 +379,40 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
             None: non-existent database, non-existent table, an error ocurred
     """
 
-    try:
+    bd = _Buscar(database)
 
-        temp = _storage.Buscar(database)
+    if not bd:
 
-        if temp:
-            return temp.extractRangeTable(table, columnNumber, lower, upper)
+        mode = bd[1]
+        
+        val=-1
 
-        else:
-            return None
-            
-    except:
-        return None
+        if mode == "avl":
+            val = avl.extractRangeTable(database, table, columnNumber, lower, upper)
+
+        elif mode == "b":
+            val =  b.extractRangeTable(database, table, columnNumber, lower, upper)
+
+        elif mode == "bplus":
+            val =  bplus.extractRangeTable(database, table, columnNumber, lower, upper)
+
+        elif mode == "hash":
+            val =  hash.extractRangeTable(database, table, columnNumber, lower, upper)
+
+        elif mode == "isam":
+            val =  isam.extractRangeTable(database, table, columnNumber, lower, upper)
+
+        elif mode == "json":
+            val =  json.extractRangeTable(database, table, columnNumber, lower, upper)
+
+        elif mode == "dict":
+            val =  dict.extractRangeTable(database, table, columnNumber, lower, upper)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 def alterAddPK(database: str, table: str, columns: list) -> int:
@@ -274,18 +432,40 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
             5: PK out of bounds
     """
 
-    try:
+    bd = _Buscar(database)
 
-        temp = _storage.Buscar(database)
+    if not bd:
 
-        if temp:
-            return temp.alterAddPK(table, columns)
+        mode = bd[1]
+        
+        val=-1
 
-        else:
-            return 2
+        if mode == "avl":
+            val = avl.alterAddPK(database, table, columns)
 
-    except:
-        return 1
+        elif mode == "b":
+            val =  b.alterAddPK(database, table, columns)
+
+        elif mode == "bplus":
+            val =  bplus.alterAddPK(database, table, columns)
+
+        elif mode == "hash":
+            val =  hash.alterAddPK(database, table, columns)
+
+        elif mode == "isam":
+            val =  isam.alterAddPK(database, table, columns)
+
+        elif mode == "json":
+            val =  json.alterAddPK(database, table, columns)
+
+        elif mode == "dict":
+            val =  dict.alterAddPK(database, table, columns)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 def alterDropPK(database: str, table: str) -> int:
@@ -303,34 +483,118 @@ def alterDropPK(database: str, table: str) -> int:
             4: non-existent PK
     """
 
-    try:
+    bd = _Buscar(database)
 
-        temp = _storage.Buscar(database)
+    if not bd:
 
-        if temp:
-            return temp.alterDropPK(table)
-            
-        else:
-            return 2
-            
-    except:
-        return 1
+        mode = bd[1]
+        
+        val=-1
+
+        if mode == "avl":
+            val = avl.alterDropPK(database, table)
+
+        elif mode == "b":
+            val =  b.alterDropPK(database, table)
+
+        elif mode == "bplus":
+            val =  bplus.alterDropPK(database, table)
+
+        elif mode == "hash":
+            val =  hash.alterDropPK(database, table)
+
+        elif mode == "isam":
+            val =  isam.alterDropPK(database, table)
+
+        elif mode == "json":
+            val =  json.alterDropPK(database, table)
+
+        elif mode == "dict":
+            val =  dict.alterDropPK(database, table)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 def alterAddFK(database: str, table: str, references: dict) -> int:
-    """
-    DOCSTRING
-    """
+    
+    bd = _Buscar(database)
 
-    print("codigo en proceso (FASE 2)")
+    if not bd:
+
+        mode = bd[1]
+        
+        val=-1
+
+        if mode == "avl":
+            val = avl.alterAddFK(database, table, references)
+
+        elif mode == "b":
+            val =  b.alterAddFK(database, table, references)
+
+        elif mode == "bplus":
+            val =  bplus.alterAddFK(database, table, references)
+
+        elif mode == "hash":
+            val =  hash.alterAddFK(database, table, references)
+
+        elif mode == "isam":
+            val =  isam.alterAddFK(database, table, references)
+
+        elif mode == "json":
+            val =  json.alterAddFK(database, table, references)
+
+        elif mode == "dict":
+            val =  dict.alterAddFK(database, table, references)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 def alterAddIndex(database: str, table: str, references: dict) -> int:
     """
     DOCSTRING
     """
+    bd = _Buscar(database)
 
-    print("codigo en proceso (FASE 2)")
+    if not bd:
+
+        mode = bd[1]
+        
+        val=-1
+
+        if mode == "avl":
+            val = avl.alterAddIndex(database, table, references)
+
+        elif mode == "b":
+            val =  b.alterAddIndex(database, table, references)
+
+        elif mode == "bplus":
+            val =  bplus.alterAddIndex(database, table, references)
+
+        elif mode == "hash":
+            val =  hash.alterAddIndex(database, table, references)
+
+        elif mode == "isam":
+            val =  isam.alterAddIndex(database, table, references)
+
+        elif mode == "json":
+            val =  json.alterAddIndex(database, table, references)
+
+        elif mode == "dict":
+            val =  dict.alterAddIndex(database, table, references)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
@@ -349,18 +613,40 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
             4: new table name occupied
     """
 
-    try:
+    bd = _Buscar(database)
 
-        temp = _storage.Buscar(database)
+    if not bd:
 
-        if temp:
-            return temp.alterTable(tableOld, tableNew)
+        mode = bd[1]
+        
+        val=-1
 
-        else:
-            return 2
-            
-    except:
-        return 1
+        if mode == "avl":
+            val = avl.alterTable(database, tableOld, tableNew)
+
+        elif mode == "b":
+            val =  b.alterTable(database, tableOld, tableNew)
+
+        elif mode == "bplus":
+            val =  bplus.alterTable(database, tableOld, tableNew)
+
+        elif mode == "hash":
+            val =  hash.alterTable(database, tableOld, tableNew)
+
+        elif mode == "isam":
+            val =  isam.alterTable(database, tableOld, tableNew)
+
+        elif mode == "json":
+            val =  json.alterTable(database, tableOld, tableNew)
+
+        elif mode == "dict":
+            val =  dict.alterTable(database, tableOld, tableNew)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 def alterAddColumn(database:str, table:str, default: any) -> int:
@@ -378,18 +664,40 @@ def alterAddColumn(database:str, table:str, default: any) -> int:
             3: non-existent table
     """
 
-    try:
+    bd = _Buscar(database)
 
-        temp = _storage.Buscar(database)
+    if not bd:
 
-        if temp:
-            return temp.alterAddColumn(table, default)
+        mode = bd[1]
+        
+        val=-1
 
-        else:
-            return 2
-            
-    except:
-        return 1
+        if mode == "avl":
+            val = avl.alterAddColumn(database, table, default)
+
+        elif mode == "b":
+            val =  b.alterAddColumn(database, table, default)
+
+        elif mode == "bplus":
+            val =  bplus.alterAddColumn(database, table, default)
+
+        elif mode == "hash":
+            val =  hash.alterAddColumn(database, table, default)
+
+        elif mode == "isam":
+            val =  isam.alterAddColumn(database, table, default)
+
+        elif mode == "json":
+            val =  json.alterAddColumn(database, table, default)
+
+        elif mode == "dict":
+            val =  dict.alterAddColumn(database, table, default)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
@@ -409,18 +717,40 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
             5: column index out of bounds
     """
 
-    try:
+    bd = _Buscar(database)
 
-        temp = _storage.Buscar(database)
+    if not bd:
 
-        if temp:
-            return temp.alterDropColumn(table, columnNumber)
+        mode = bd[1]
+        
+        val=-1
 
-        else:
-            return 2
-            
-    except:
-        return 1
+        if mode == "avl":
+            val = avl.alterDropColumn(database, table, columnNumber)
+
+        elif mode == "b":
+            val =  b.alterDropColumn(database, table, columnNumber)
+
+        elif mode == "bplus":
+            val =  bplus.alterDropColumn(database, table, columnNumber)
+
+        elif mode == "hash":
+            val =  hash.alterDropColumn(database, table, columnNumber)
+
+        elif mode == "isam":
+            val =  isam.alterDropColumn(database, table, columnNumber)
+
+        elif mode == "json":
+            val =  json.alterDropColumn(database, table, columnNumber)
+
+        elif mode == "dict":
+            val =  dict.alterDropColumn(database, table, columnNumber)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 def dropTable(database: str, table: str) -> int:
@@ -437,18 +767,40 @@ def dropTable(database: str, table: str) -> int:
             3: non-existent table
     """
 
-    try:
+    bd = _Buscar(database)
 
-        temp = _storage.Buscar(database)
+    if not bd:
 
-        if temp:
-            return temp.dropTable(table)
+        mode = bd[1]
+        
+        val=-1
 
-        else:
-            return 2
-            
-    except:
-        return 1
+        if mode == "avl":
+            val = avl.dropTable(database, table)
+
+        elif mode == "b":
+            val =  b.dropTable(database, table)
+
+        elif mode == "bplus":
+            val =  bplus.dropTable(database, table)
+
+        elif mode == "hash":
+            val =  hash.dropTable(database, table)
+
+        elif mode == "isam":
+            val =  isam.dropTable(database, table)
+
+        elif mode == "json":
+            val =  json.dropTable(database, table)
+
+        elif mode == "dict":
+            val =  dict.dropTable(database, table)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 # ==//== funciones con respecto a Tabla ==//==
@@ -471,28 +823,40 @@ def insert(database: str, table: str, register: list) -> int:
             5: register out of bounds
     """
 
-    try:
+    bd = _Buscar(database)
 
-        temp = _storage.Buscar(database)
+    if not bd:
 
-        if temp:
+        mode = bd[1]
+        
+        val=-1
 
-            b = temp.Buscar(table)        
-            
-            if b[0]:
-                tabla = temp.Cargar(table)
-                var = tabla.insertar(register)            
-                temp.Guardar()
-                return var
+        if mode == "avl":
+            val = avl.insert(database, table, register)
 
-            else:
-                return 3
+        elif mode == "b":
+            val =  b.insert(database, table, register)
 
-        else:
-            return 2
-            
-    except:
-        return 1
+        elif mode == "bplus":
+            val =  bplus.insert(database, table, register)
+
+        elif mode == "hash":
+            val =  hash.insert(database, table, register)
+
+        elif mode == "isam":
+            val =  isam.insert(database, table, register)
+
+        elif mode == "json":
+            val =  json.insert(database, table, register)
+
+        elif mode == "dict":
+            val =  dict.insert(database, table, register)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 def loadCSV(file: str, database: str, table: str) -> list:
@@ -509,45 +873,40 @@ def loadCSV(file: str, database: str, table: str) -> list:
             empty list: non-existent database, non-existent table, an error occured, csv file is empty
     """
     
-    try:
+    bd = _Buscar(database)
 
-        archivo = open(file, "r", encoding="utf-8-sig")
+    if not bd:
 
-        temp = _storage.Buscar(database)
+        mode = bd[1]
+        
+        val=-1
 
-        if temp:
-            
-            b = temp.Buscar(table)        
-            nombre = temp.list_table[b[1]]
-            
-            if b[0]:
-                
-                tabla = temp.Cargar(nombre)
-                registros = list(csv.reader(archivo, delimiter = ","))
+        if mode == "avl":
+            val = avl.loadCSV(file, database, table)
 
-                valores=[]     
-                for registro in registros:     
+        elif mode == "b":
+            val =  b.loadCSV(file, database, table)
 
-                    for i in range(len(registro)):
+        elif mode == "bplus":
+            val =  bplus.loadCSV(file, database, table)
 
-                        if registro[i].isnumeric():
-                            nuevo=int(registro[i])
-                            registro[i]=nuevo
+        elif mode == "hash":
+            val =  hash.loadCSV(file, database, table)
 
-                    valores.append(tabla.insertar(registro))
+        elif mode == "isam":
+            val =  isam.loadCSV(file, database, table)
 
-                else:
-                    temp.Guardar()
-                    return valores
+        elif mode == "json":
+            val =  json.loadCSV(file, database, table)
 
-            else:
-                return []
+        elif mode == "dict":
+            val =  dict.loadCSV(file, database, table)
 
-        else:
-            return []
-            
-    except:
-        return []
+
+        return val
+
+    else:
+        return 2
         
 
 def extractRow(database: str, table: str, columns: list) -> list:
@@ -563,28 +922,40 @@ def extractRow(database: str, table: str, columns: list) -> list:
             empty list: non-existent database, non-existent table, an error ocurred
     """
 
-    try:
+    bd = _Buscar(database)
 
-        temp = _storage.Buscar(database)
+    if not bd:
 
-        if temp:
+        mode = bd[1]
+        
+        val=-1
 
-            b = temp.Buscar(table)       
-            
-            if b[0]:
-                tabla = temp.Cargar(table)
-                var = tabla.ExtraerTupla(columns)            
-                temp.Guardar()
-                return var
+        if mode == "avl":
+            val = avl.extractRow(database, table, columns)
 
-            else:
-                return []
+        elif mode == "b":
+            val =  b.extractRow(database, table, columns)
 
-        else:
-            return []
-            
-    except:
-        return []
+        elif mode == "bplus":
+            val =  bplus.extractRow(database, table, columns)
+
+        elif mode == "hash":
+            val =  hash.extractRow(database, table, columns)
+
+        elif mode == "isam":
+            val =  isam.extractRow(database, table, columns)
+
+        elif mode == "json":
+            val =  json.extractRow(database, table, columns)
+
+        elif mode == "dict":
+            val =  dict.extractRow(database, table, columns)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 def update(database: str, table: str, register: dict, columns: list) -> int:
@@ -604,28 +975,40 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
             4: non-existent PK
     """
 
-    try:
+    bd = _Buscar(database)
 
-        temp = _storage.Buscar(database)
+    if not bd:
 
-        if temp:
+        mode = bd[1]
+        
+        val=-1
 
-            b = temp.Buscar(table)
+        if mode == "avl":
+            val = avl.update(database, table, register, columns)
 
-            if b[0]:
-                tabla = temp.Cargar(table)
-                var = tabla.update(columns, register)            
-                temp.Guardar()
-                return var
+        elif mode == "b":
+            val =  b.update(database, table, register, columns)
 
-            else:
-                return 3
+        elif mode == "bplus":
+            val =  bplus.update(database, table, register, columns)
 
-        else:
-            return 2
-            
-    except:
-        return 1
+        elif mode == "hash":
+            val =  hash.update(database, table, register, columns)
+
+        elif mode == "isam":
+            val =  isam.update(database, table, register, columns)
+
+        elif mode == "json":
+            val =  json.update(database, table, register, columns)
+
+        elif mode == "dict":
+            val =  dict.update(database, table, register, columns)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 def delete(database: str, table: str, columns: list) -> int:
@@ -644,28 +1027,40 @@ def delete(database: str, table: str, columns: list) -> int:
             4: non-existent PK
     """
 
-    try:
+    bd = _Buscar(database)
 
-        temp = _storage.Buscar(database)
+    if not bd:
 
-        if temp:
+        mode = bd[1]
+        
+        val=-1
 
-            b = temp.Buscar(table)        
+        if mode == "avl":
+            val = avl.delete(database, table, columns)
 
-            if b[0]:
-                tabla = temp.Cargar(table)
-                var = tabla.deleteTable(columns)            
-                temp.Guardar()
-                return var
+        elif mode == "b":
+            val =  b.delete(database, table, columns)
 
-            else:
-                return 3
+        elif mode == "bplus":
+            val =  bplus.delete(database, table, columns)
 
-        else:
-            return 2
-            
-    except:
-        return 1
+        elif mode == "hash":
+            val =  hash.delete(database, table, columns)
+
+        elif mode == "isam":
+            val =  isam.delete(database, table, columns)
+
+        elif mode == "json":
+            val =  json.delete(database, table, columns)
+
+        elif mode == "dict":
+            val =  dict.delete(database, table, columns)
+
+        
+        return val
+
+    else:
+        return 2
 
 
 def truncate(database: str, table: str) -> int:
@@ -682,25 +1077,37 @@ def truncate(database: str, table: str) -> int:
             3: non-existent table
     """
 
-    try:
+    bd = _Buscar(database)
 
-        temp = _storage.Buscar(database)
+    if not bd:
 
-        if temp:
+        mode = bd[1]
+        
+        val=-1
 
-            b = temp.Buscar(table)
+        if mode == "avl":
+            val = avl.truncate(database, table)
 
-            if b[0]:
-                tabla = temp.Cargar(table)
-                var = tabla.truncate()            
-                temp.Guardar()
-                return var
+        elif mode == "b":
+            val =  b.truncate(database, table)
 
-            else:
-                return 3
+        elif mode == "bplus":
+            val =  bplus.truncate(database, table)
 
-        else:
-            return 2
-            
-    except:
-        return 1
+        elif mode == "hash":
+            val =  hash.truncate(database, table)
+
+        elif mode == "isam":
+            val =  isam.truncate(database, table)
+
+        elif mode == "json":
+            val =  json.truncate(database, table)
+
+        elif mode == "dict":
+            val =  dict.truncate(database, table)
+
+        
+        return val
+
+    else:
+        return 2
