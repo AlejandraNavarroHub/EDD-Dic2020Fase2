@@ -9,43 +9,7 @@ import os, re, csv
 _storage = ListaBaseDatos.ListaBaseDatos()
 _main_path = os.getcwd()+"\\data\\hash"
 _db_name_pattern = "^[a-zA-Z][a-zA-Z0-9#@$_]*"
-
-
-def setDir(path: str) -> int:
-    """Sets new data location
-
-        Parameters:\n
-            path (str): new data path
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-    """
-
-    global _main_path
-    temp_path = path+"\\data"
-
-    try:
-        if os.path.isdir(path):
-
-            if not os.path.isdir(temp_path):
-                os.mkdir(temp_path)
-
-            _main_path = temp_path
-            ListaBaseDatos.main_path = temp_path
-
-            __init__()
-
-            return 0
-        
-        else:
-            return 1
-
-    except:
-        return 1
-
-
-# ==//== inicialización del sistema de directorios ==//==
+    
 
 def __init__():
 
@@ -60,20 +24,8 @@ def __init__():
         
 __init__()
 
-# ==//== funciones con respecto a ListaBaseDatos ==//==
-# Se llama la función sobre la clase ListaBaseDatos
 
 def createDatabase(database: str) -> int:
-    """Creates a database
-
-        Parameters:\n
-            database (str): name of the database
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-            2: database name occupied
-    """
 
     try:
         
@@ -88,28 +40,11 @@ def createDatabase(database: str) -> int:
 
 
 def showDatabases() -> list:
-    """Show stored databases
-
-        Returns:\n
-            list: successful operation
-    """
 
     return _storage.showDatabases()
 
 
 def alterDatabase(databaseOld: str, databaseNew: str) -> int:
-    """Renames a database
-
-        Parameters:\n
-            databaseOld (str): name of the target database
-            databaseNew (str): new name of the target database
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-            2: non-existent target database
-            3: new database name occupied
-    """
     
     try:
 
@@ -124,16 +59,6 @@ def alterDatabase(databaseOld: str, databaseNew: str) -> int:
 
 
 def dropDatabase(database: str) -> int:
-    """Deletes a database (including all of its content)
-
-        Parameters:\n
-            database (str): name of the database
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-            2: non-existent database
-    """
 
     try:
 
@@ -143,23 +68,7 @@ def dropDatabase(database: str) -> int:
         return 1
 
 
-# ==//== funciones con respecto a BaseDatos ==//==
-# Primero se busca la base de datos y luego se llama la función sobre la clase BaseDatos
-
 def createTable(database: str, table: str, numberColumns: int) -> int:
-    """Creates a table
-
-        Parameters:\n
-            database (str): name of the database
-            table (str): name of the table
-            numberColumns (int): number of table columns
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-            2: non-existent database
-            3: table name ocuppied
-    """
 
     try:
 
@@ -176,15 +85,6 @@ def createTable(database: str, table: str, numberColumns: int) -> int:
 
 
 def showTables(database: str) -> list:
-    """Show stored tables in a database
-
-        Parameters:\n
-            database (str): name of the database
-
-        Returns:\n
-            list: successful operation
-            None: non-existent database
-    """
 
     temp = _storage.Buscar(database)
 
@@ -196,16 +96,6 @@ def showTables(database: str) -> list:
 
 
 def extractTable(database: str, table: str) -> list:
-    """Shows the content of a table in a database
-
-        Parameters:\n
-            database (str): name of the database
-            table (str): name of the table
-
-        Returns:\n
-            list: successful operation
-            None: non-existent database, non-existent table, an error ocurred
-    """
 
     try:
 
@@ -222,19 +112,6 @@ def extractTable(database: str, table: str) -> list:
 
 
 def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
-    """Shows the content whitin a range of a table in a database
-
-        Parameters:\n
-            database (str): name of the database
-            table (str): name of the table
-            columnNumber (int): PK to compare
-            lower (any): lower limit of PK value
-            upper (any): upper limit of PK value
-
-        Returns:\n
-            list: successful operation
-            None: non-existent database, non-existent table, an error ocurred
-    """
 
     try:
 
@@ -251,21 +128,6 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
 
 
 def alterAddPK(database: str, table: str, columns: list) -> int:
-    """Adds a PK to a table in a database
-
-        Parameters:\n
-            database (str): name of the database
-            table (str): name of the table
-            columns (list): list with PK columns
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-            2: non-existent database
-            3: non-existent table
-            4: existent PK
-            5: PK out of bounds
-    """
 
     try:
 
@@ -282,19 +144,6 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
 
 
 def alterDropPK(database: str, table: str) -> int:
-    """Deletes PKs of a table in a database
-
-        Parameters:\n
-            database (str): name of the database
-            table (str): name of the table
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-            2: non-existent database
-            3: non-existent table
-            4: non-existent PK
-    """
 
     try:
 
@@ -311,36 +160,16 @@ def alterDropPK(database: str, table: str) -> int:
 
 
 def alterAddFK(database: str, table: str, references: dict) -> int:
-    """
-    DOCSTRING
-    """
 
     print("codigo en proceso (FASE 2)")
 
 
 def alterAddIndex(database: str, table: str, references: dict) -> int:
-    """
-    DOCSTRING
-    """
 
     print("codigo en proceso (FASE 2)")
 
 
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
-    """Renames a table in a database
-
-        Parameters:\n
-            database (str): name of the database
-            tableOld (str): name of the target table
-            tableNew (str): new name of the table
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-            2: non-existent database
-            3: non-existent target table
-            4: new table name occupied
-    """
 
     try:
 
@@ -357,19 +186,6 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
 
 
 def alterAddColumn(database:str, table:str, default: any) -> int:
-    """Appends a column to a table in a database
-
-        Parameters:\n
-            database (str): name of the database
-            table (str): name of the table
-            default (any): default value of registers new column
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-            2: non-existent database
-            3: non-existent table
-    """
 
     try:
 
@@ -386,21 +202,6 @@ def alterAddColumn(database:str, table:str, default: any) -> int:
 
 
 def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
-    """Deletes a column of a table in a database
-
-        Parameters:\n
-            database (str): name of the database
-            table (str): name of the table
-            columnNumber (int): target column index
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-            2: non-existent database
-            3: non-existent table
-            4: column cannot be deleted
-            5: column index out of bounds
-    """
 
     try:
 
@@ -417,18 +218,6 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
 
 
 def dropTable(database: str, table: str) -> int:
-    """Deletes a table in a database (including all of its content)
-
-        Parameters:\n
-            database (str): name of the database
-            table (str): name of the table
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-            2: non-existent database
-            3: non-existent table
-    """
 
     try:
 
@@ -444,25 +233,7 @@ def dropTable(database: str, table: str) -> int:
         return 1
 
 
-# ==//== funciones con respecto a Tabla ==//==
-# Primero se busca la base de datos, luego la tabla, y luego se llama la función sobre la clase Tabla
-
 def insert(database: str, table: str, register: list) -> int:
-    """Inserts a register into a table in a database
-
-        Parameters:\n
-            database (str): name of the database
-            table (str): name of the table
-            register (list): list with register values
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-            2: non-existent database
-            3: non-existent table
-            4: PK ocuppied
-            5: register out of bounds
-    """
 
     try:
 
@@ -489,18 +260,6 @@ def insert(database: str, table: str, register: list) -> int:
 
 
 def loadCSV(file: str, database: str, table: str) -> list:
-    """Loads a csv file and inserts its content into a table in a database
-
-        Parameters:\n
-            file (str): csv file path
-            file (str): csv file path
-            database (str): name of the database
-            table (str): name of the table
-
-        Returns:\n
-            list: return values of each insert
-            empty list: non-existent database, non-existent table, an error occured, csv file is empty
-    """
     
     try:
 
@@ -544,17 +303,6 @@ def loadCSV(file: str, database: str, table: str) -> list:
         
 
 def extractRow(database: str, table: str, columns: list) -> list:
-    """Shows a register of a table in a database
-
-        Parameters:\n
-            database (str): name of the database
-            table (str): name of the table
-            columns (list): PK of target register
-
-        Returns:\n
-            list: succesful operation
-            empty list: non-existent database, non-existent table, an error ocurred
-    """
 
     try:
 
@@ -581,21 +329,6 @@ def extractRow(database: str, table: str, columns: list) -> list:
 
 
 def update(database: str, table: str, register: dict, columns: list) -> int:
-    """Updates a register into a table in a database
-
-        Parameters:\n
-            database (str): name of the database
-            table (str): name of the table
-            register (dict): key: column number, value: new values
-            columns (list): PK of target register
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-            2: non-existent database
-            3: non-existent table
-            4: non-existent PK
-    """
 
     try:
 
@@ -622,20 +355,6 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
 
 
 def delete(database: str, table: str, columns: list) -> int:
-    """Deletes a register into a table in a database
-
-        Parameters:\n
-            database (str): name of the database
-            table (str): name of the table
-            columns (list): PK of target register
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-            2: non-existent database
-            3: non-existent table
-            4: non-existent PK
-    """
 
     try:
 
@@ -662,18 +381,6 @@ def delete(database: str, table: str, columns: list) -> int:
 
 
 def truncate(database: str, table: str) -> int:
-    """Deletes the content of a table in a database
-
-        Parameters:\n
-            database (str): name of the database
-            table (str): name of the table
-
-        Returns:\n
-            0: successful operation
-            1: an error ocurred
-            2: non-existent database
-            3: non-existent table
-    """
 
     try:
 
