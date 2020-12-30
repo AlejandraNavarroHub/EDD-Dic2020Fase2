@@ -30,7 +30,6 @@ def __init__():
 
     # for db in cada carpeta, append to lista_general
 
-
 __init__()
 
 
@@ -1107,15 +1106,46 @@ def alterDatabaseMode(database: str, mode: str) -> int:
             3: non-existent table
     """
 
-    bd = _Buscar(database)
+    try:
 
-    if bd:
+        bd = _Buscar(database)
+        # no funciona si la tabla no tiene registros
 
-        pass
+        if bd:
 
-    else:
-        return 2
+            if bd[1] == mode or mode not in ["avl", "b", "bplus", "dict", "hash", "isam", "json"]:
+                return 4
 
+            data=[]
+
+            for tabla in showTables(database):
+                # lista de [tabla, registros]
+                registros = extractTable(database, tabla)
+                data.append([tabla, registros, len(registros[0])])
+
+
+            #creando la nueva base de datos
+            createDatabase(database+"_temp", mode)
+
+            for tabla in data:
+
+                createTable(database+"_temp", data[0], data[2])
+
+                for registro in data[1]:
+
+                    insert(database+"_temp", data[0], registro)
+
+            else:
+                dropDatabase(database)            
+                alterDatabase(database+"_temp", database)
+
+                return 0
+            
+        else:
+            return 2    
+
+    except:
+        return 1
 
 
 def alterTableMode(database: str, table: str, encoding: str) -> int:
@@ -1131,12 +1161,15 @@ def alterTableMode(database: str, table: str, encoding: str) -> int:
             2: non-existent database
             3: non-existent table
     """
+    try:
 
-    bd = _Buscar(database)
+        bd = _Buscar(database)
 
-    if bd:
+        if bd:
+            pass
+            
+        else:
+            return 2    
 
-        pass
-
-    else:
-        return 2
+    except:
+        return 1
