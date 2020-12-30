@@ -2,7 +2,7 @@
 /.idea
 /data
 /data/root.dat
-/__pycache__
+__pycache__
 /test_file.py
 /Models/treeGraph.png
 /BusinessLayer/__pycache__

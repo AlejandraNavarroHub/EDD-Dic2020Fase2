@@ -1,17 +1,18 @@
-# HASH Mode Package
+# -------------------------------
 # Released under MIT License
 # Copyright (c) 2020 TytusDb Team
 
 
-from avl import avlMode as avl
-from b import BMode as b
-from bplus import BPlusMode as bplus
-from dict import DictMode as dict
-from hash import HashMode as hash
-from isam import ISAMMode as isam
-from jsonMode import jsonMode as json
+from storage.avl import avlMode as avl
+from storage.b import BMode as b
+from storage.bplus import BPlusMode as bplus
+from storage.dict import DictMode as dict
+from storage.hash import HashMode as hash
+from storage.isam import ISAMMode as isam
+from storage.json import jsonMode as json
 
-import os, serealizar
+import os
+from storage import serealizar
 
 _main_path = os.getcwd() + "\\data"
 
@@ -55,7 +56,7 @@ def createDatabase(database: str, mode: str, encoding: str) -> int:
             2: database name occupied
     """
 
-    if _Buscar(database):
+    if not _Buscar(database):
 
         if encoding not in ["utf8", "ascii", "iso-8859-1"]:
             return 4
@@ -86,7 +87,7 @@ def createDatabase(database: str, mode: str, encoding: str) -> int:
 
         if val == 0:
             lista_general.append([database, mode, encoding])
-            serealizar.commit(lista_general, "cache", _main_path)
+            serealizar.commit(lista_general, "data", _main_path)
 
         return val
 
@@ -792,9 +793,6 @@ def dropTable(database: str, table: str) -> int:
         return 2
 
 
-# ==//== funciones con respecto a Tabla ==//==
-# Primero se busca la base de datos, luego la tabla, y luego se llama la función sobre la clase Tabla
-
 def insert(database: str, table: str, register: list) -> int:
     """Inserts a register into a table in a database
 
@@ -1091,6 +1089,54 @@ def truncate(database: str, table: str) -> int:
             val = dict.truncate(database, table)
 
         return val
+
+    else:
+        return 2
+
+def alterDatabaseMode(database: str, mode: str) -> int:
+    """Deletes the content of a table in a database
+
+        Parameters:\n
+            database (str): name of the database
+            table (str): name of the table
+
+        Returns:\n
+            0: successful operation
+            1: an error ocurred
+            2: non-existent database
+            3: non-existent table
+    """
+
+    bd = _Buscar(database)
+
+    if bd:
+
+        pass
+
+    else:
+        return 2
+
+
+
+def alterTableMode(database: str, table: str, encoding: str) -> int:
+    """Deletes the content of a table in a database
+
+        Parameters:\n
+            database (str): name of the database
+            table (str): name of the table
+
+        Returns:\n
+            0: successful operation
+            1: an error ocurred
+            2: non-existent database
+            3: non-existent table
+    """
+
+    bd = _Buscar(database)
+
+    if bd:
+
+        pass
 
     else:
         return 2

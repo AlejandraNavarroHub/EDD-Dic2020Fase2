@@ -1,5 +1,5 @@
-from DataBase import DataBase
-from Table import Table
+from storage.isam.DataBase import DataBase
+from storage.isam.Table import Table
 import os
 import pickle
 

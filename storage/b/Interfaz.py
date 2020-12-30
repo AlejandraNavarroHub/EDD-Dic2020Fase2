@@ -6,7 +6,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-from team17 import BMode as B
+from storage.b import BMode as B
 
 def runInterface():
         r = PP()
