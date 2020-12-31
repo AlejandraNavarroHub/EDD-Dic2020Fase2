@@ -515,42 +515,6 @@ def alterDropPK(database: str, table: str) -> int:
         return 2
 
 
-def alterAddFK(database: str, table: str, references: dict) -> int:
-    bd = _Buscar(database)
-
-    if bd:
-
-        mode = bd[1]
-
-        val = -1
-
-        if mode == "avl":
-            val = avl.alterAddFK(database, table, references)
-
-        elif mode == "b":
-            val = b.alterAddFK(database, table, references)
-
-        elif mode == "bplus":
-            val = bplus.alterAddFK(database, table, references)
-
-        elif mode == "hash":
-            val = hash.alterAddFK(database, table, references)
-
-        elif mode == "isam":
-            val = isam.alterAddFK(database, table, references)
-
-        elif mode == "json":
-            val = json.alterAddFK(database, table, references)
-
-        elif mode == "dict":
-            val = dict.alterAddFK(database, table, references)
-
-        return val
-
-    else:
-        return 2
-
-
 def alterAddIndex(database: str, table: str, references: dict) -> int:
     """
     DOCSTRING
@@ -1092,18 +1056,22 @@ def truncate(database: str, table: str) -> int:
     else:
         return 2
 
+
+#===============================//================================
+
+
 def alterDatabaseMode(database: str, mode: str) -> int:
-    """Deletes the content of a table in a database
+    """Restructures a database inner structure
 
         Parameters:\n
             database (str): name of the database
-            table (str): name of the table
+            mode (str): new mode of the database
 
         Returns:\n
             0: successful operation
             1: an error ocurred
             2: non-existent database
-            3: non-existent table
+            3: non-valid mode
     """
 
     try:
@@ -1148,18 +1116,20 @@ def alterDatabaseMode(database: str, mode: str) -> int:
         return 1
 
 
-def alterTableMode(database: str, table: str, encoding: str) -> int:
-    """Deletes the content of a table in a database
+def alterTableMode(database: str, table: str, mode: str) -> int:
+    """Modifies a table inner encoding
 
         Parameters:\n
             database (str): name of the database
             table (str): name of the table
+            mode (str): new encoding
 
         Returns:\n
             0: successful operation
             1: an error ocurred
             2: non-existent database
             3: non-existent table
+            3: non-valid encoding
     """
     try:
 
@@ -1173,3 +1143,75 @@ def alterTableMode(database: str, table: str, encoding: str) -> int:
 
     except:
         return 1
+
+
+def alterTableAddFK(database: str, table: str, indexName: str, columns: list, tableRef: str, columnsRef: list) -> int:
+    bd = _Buscar(database)
+
+    if bd:
+
+        mode = bd[1]
+
+        val = -1
+
+        if mode == "avl":
+            val = avl.alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef)
+
+        elif mode == "b":
+            val = b.alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef)
+
+        elif mode == "bplus":
+            val = bplus.alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef)
+
+        elif mode == "hash":
+            val = hash.alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef)
+
+        elif mode == "isam":
+            val = isam.alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef)
+
+        elif mode == "json":
+            val = json.alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef)
+
+        elif mode == "dict":
+            val = dict.alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef)
+
+        return val
+
+    else:
+        return 2
+
+
+def alterTableDropFK(database: str, table: str, indexName: str) -> int:
+    bd = _Buscar(database)
+
+    if bd:
+
+        mode = bd[1]
+
+        val = -1
+
+        if mode == "avl":
+            val = avl.alterTableDropFK(database, table, indexName)
+
+        elif mode == "b":
+            val = b.alterTableDropFK(database, table, indexName)
+
+        elif mode == "bplus":
+            val = bplus.alterTableDropFK(database, table, indexName)
+
+        elif mode == "hash":
+            val = hash.alterTableDropFK(database, table, indexName)
+
+        elif mode == "isam":
+            val = isam.alterTableDropFK(database, table, indexName)
+
+        elif mode == "json":
+            val = json.alterTableDropFK(database, table, indexName)
+
+        elif mode == "dict":
+            val = dict.alterTableDropFK(database, table, indexName)
+
+        return val
+
+    else:
+        return 2
