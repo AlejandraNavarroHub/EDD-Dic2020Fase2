@@ -388,8 +388,8 @@ def dropTable(database: str, table: str) -> int:
 # ---------------CRUD TUPLA----------------#
 # ---------------Rudy----------------------#
 def dropAll():
-    if os.path.isdir('./data/bplus'):
-        shutil.rmtree('./data/bplus')
+    if os.path.isdir('data/bplus'):
+        shutil.rmtree('data/bplus')
 
 def insert(database, table, register):
     if type(database) !=str or type(table)!=str or type(register)!=list:

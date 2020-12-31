@@ -26,8 +26,8 @@ def initCheck():
 
 def dropAll():
     import shutil
-    if os.path.exists('data'):
-        shutil.rmtree('data')
+    if os.path.exists('data/dict'):
+        shutil.rmtree('data/dict')
 
 def crearCarpeta(nombre:str):
     if not os.path.exists('data/'+nombre):

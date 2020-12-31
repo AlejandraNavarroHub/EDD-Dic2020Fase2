@@ -93,10 +93,9 @@ class Handler:
 
     @staticmethod
     def reset():
-        if os.path.exists("data"):
-            shutil.rmtree("data")
-        os.makedirs('data')
-        os.makedirs('./data/avl')
+        if os.path.exists("data/avl"):
+            shutil.rmtree("data/avl")
+        os.makedirs('data/avl')
         f = open('./data/avl/root.dat', 'wb')
         f.close()
         if os.path.exists("tmp"):
