@@ -3,11 +3,11 @@ from tkinter import messagebox
 from tkinter import simpledialog
 from tkinter import ttk
 import json
-import storage.isam.Table
+from . import Table
 from tkinter import filedialog
-import storage.isam.ISAMMode as Storage
-from storage.isam.DataBase import DataBase
-from storage.isam.Table import Table
+from . import ISAMMode as Storage
+from .DataBase import DataBase
+from .Table import Table
 import os
 import pickle
 #--------------------------------------------------opciones de las bases de datos-------------------------------------------------

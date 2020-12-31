@@ -10,7 +10,12 @@ data = {}
 def initCheck():
     if not os.path.exists('data'):
         os.makedirs('data')
+        os.makedirs('data/dict')
         return {}
+    if not os.path.exists('data/dict'):
+        os.makedirs('data/dict')
+        return {}
+
     databases = rollback("databases")
     temp = {}
     for bases in databases:

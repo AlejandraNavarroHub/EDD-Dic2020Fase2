@@ -22,11 +22,11 @@ def __init__():
     lista_general = []
     # Lista de  [Nombre, modo, encoding]
 
-    if not os.path.isfile(_main_path + "\\" + "cache.bin"):
-        serealizar.commit(lista_general, "cache", _main_path)
+    if not os.path.isfile(_main_path + "\\" + "data.bin"):
+        serealizar.commit(lista_general, "data", _main_path)
 
     else:
-        lista_general = serealizar.rollback("cache", _main_path)
+        lista_general = serealizar.rollback("data", _main_path)
 
     # for db in cada carpeta, append to lista_general
 
@@ -158,7 +158,7 @@ def alterDatabase(databaseOld: str, databaseNew: str) -> int:
                 posicion = lista_general.index(bd)
                 bd[0] = databaseNew
                 lista_general[posicion] = bd
-                serealizar.commit(lista_general, "cache", _main_path)
+                serealizar.commit(lista_general, "data", _main_path)
 
             return val
 
@@ -212,7 +212,7 @@ def dropDatabase(database: str) -> int:
 
         if val == 0:
             lista_general.remove(bd)
-            serealizar.commit(lista_general, "cache", _main_path)
+            serealizar.commit(lista_general, "data", _main_path)
 
         return val
 

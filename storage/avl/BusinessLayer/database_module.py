@@ -4,7 +4,7 @@
 # Developers: SG#16
 
 
-from storage.avl.DataAccessLayer.handler import Handler
+from ..DataAccessLayer.handler import Handler
 
 
 class Database:

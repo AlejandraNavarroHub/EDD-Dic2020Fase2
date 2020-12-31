@@ -4,7 +4,7 @@
 # Developers: SG#16
 
 
-from storage.avl.Models.node import Node
+from ..Models.node import Node
 
 
 class AVLTree:
