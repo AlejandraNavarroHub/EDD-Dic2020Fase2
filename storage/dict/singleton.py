@@ -30,20 +30,20 @@ def dropAll():
         shutil.rmtree('data/dict')
 
 def crearCarpeta(nombre:str):
-    if not os.path.exists('data/'+nombre):
-        os.makedirs('data/'+nombre)
+    if not os.path.exists('data/dict/'+nombre):
+        os.makedirs('data/dict/'+nombre)
 
 def removerCarpeta(nombre:str):
-    if os.path.exists('data/'+nombre):
-        os.rmdir('data/'+nombre)
+    if os.path.exists('data/dict/'+nombre):
+        os.rmdir('data/dict/'+nombre)
 
 def renombrarCarpeta(old, new):
-    if os.path.exists('data/'+old):
-        os.rename('data/'+old,'data/'+new)
+    if os.path.exists('data/dict/'+old):
+        os.rename('data/dict/'+old,'data/dict/'+new)
 
 def removerArchivo(ruta):
-    if  os.path.exists('data/'+ruta):
-        os.remove('data/'+ruta)
+    if  os.path.exists('data/dict/'+ruta):
+        os.remove('data/dict/'+ruta)
 
 def existDB(bd):
     return bd in dbs

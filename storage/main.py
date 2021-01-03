@@ -2,14 +2,14 @@
 # Released under MIT License
 # Copyright (c) 2020 TytusDb Team
 
-
+import traceback
 from storage.avl import avlMode as avl
 from storage.b import BMode as b
 from storage.bplus import BPlusMode as bplus
 from storage.dict import DictMode as dict
 from storage.hash import HashMode as hash
 from storage.isam import ISAMMode as isam
-from storage.json import jsonMode as json
+from storage.jsonm import jsonMode as json
 
 import os
 from storage import serealizar
@@ -18,29 +18,86 @@ _main_path = os.getcwd() + "\\data"
 
 
 def __init__():
-    global lista_general
-    lista_general = []
-    # Lista de  [Nombre, modo, encoding]
+    
+    global _data
+    _data = {
+        "db": [],
+        "fk": []
+    }
 
-    if not os.path.isfile(_main_path + "\\" + "data.bin"):
-        serealizar.commit(lista_general, "data", _main_path)
+    # database:
+    # { nombre: str,
+    #   modo: list,
+    #   encoding: str,
+    #   tablas: list
+    # }
+
+        # tabla:
+        # { nombre: str,
+        #   numero_columnas: int,
+        #   pk: list
+        # }
+    
+    # fk: [ ForeignKeys ]
+
+
+    if not os.path.isfile(_main_path + "\\" + "data"):
+        serealizar.commit(_data, _main_path)
 
     else:
-        lista_general = serealizar.rollback("data", _main_path)
+        _data = serealizar.rollback(_main_path)
 
     # for db in cada carpeta, append to lista_general
 
 __init__()
 
 
-def _Buscar(nombre: str):
-    for db in lista_general:
+def dropAll():
+    '''Removes all the data stored
 
-        if nombre.casefold() == db[0].casefold():
+        Returns:\n
+        0: successful operation
+        1: an error ocurred
+    
+    '''
+
+    try:
+
+        list=showDatabases()
+
+        for db in list:
+            dropDatabase(db)
+
+        return 0
+
+    except:
+        return 1
+        
+
+def _Guardar():
+    serealizar.commit(_data, _main_path)
+
+
+def _database(database):
+
+    for db in _data["db"]:
+        if db["nombre"].casefold() == database.casefold():
             return db
 
-    else:
-        return None
+    return False
+
+
+def _table(database, table):
+
+    db = _database(database)
+
+    if db:
+        for tb in db["tablas"]:
+            if tb["nombre"].casefold() == table.casefold():
+                return tb
+
+    return False
+
 
 
 def createDatabase(database: str, mode: str, encoding: str) -> int:
@@ -48,14 +105,18 @@ def createDatabase(database: str, mode: str, encoding: str) -> int:
 
         Parameters:\n
             database (str): name of the database
+            mode (str): mode of the database
+            encoding (str): encoding of the database
 
         Returns:\n
             0: successful operation
             1: an error ocurred
             2: database name occupied
+            3: non-valid mode
+            4: non-valid encoding
     """
 
-    if not _Buscar(database):
+    if not _database(database):
 
         if encoding not in ["utf8", "ascii", "iso-8859-1"]:
             return 4
@@ -85,8 +146,8 @@ def createDatabase(database: str, mode: str, encoding: str) -> int:
             return 3
 
         if val == 0:
-            lista_general.append([database, mode, encoding])
-            serealizar.commit(lista_general, "data", _main_path)
+            _data["db"].append({"nombre":database, "modo":mode, "encoding":encoding, "tablas": []})
+            _Guardar()
 
         return val
 
@@ -103,8 +164,8 @@ def showDatabases() -> list:
 
     temp = []
 
-    for db in lista_general:
-        temp.append(db[0])
+    for db in _data["db"]:
+        temp.append(db["nombre"])
 
     return temp
 
@@ -123,13 +184,13 @@ def alterDatabase(databaseOld: str, databaseNew: str) -> int:
             3: new database name occupied
     """
 
-    bd = _Buscar(databaseOld)
+    bd = _database(databaseOld)
 
     if bd:
 
-        if not _Buscar(databaseNew):
+        if not _database(databaseNew):
 
-            mode = bd[1]
+            mode = bd["modo"]
 
             val = -1
 
@@ -155,10 +216,8 @@ def alterDatabase(databaseOld: str, databaseNew: str) -> int:
                 val = dict.alterDatabase(databaseOld, databaseNew)
 
             if val == 0:
-                posicion = lista_general.index(bd)
-                bd[0] = databaseNew
-                lista_general[posicion] = bd
-                serealizar.commit(lista_general, "data", _main_path)
+                _database(databaseOld)["nombre"]=databaseNew
+                _Guardar()
 
             return val
 
@@ -181,11 +240,11 @@ def dropDatabase(database: str) -> int:
             2: non-existent database
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -211,8 +270,8 @@ def dropDatabase(database: str) -> int:
             val = dict.dropDatabase(database)
 
         if val == 0:
-            lista_general.remove(bd)
-            serealizar.commit(lista_general, "data", _main_path)
+            _data["db"].remove(bd)
+            _Guardar()
 
         return val
 
@@ -235,11 +294,11 @@ def createTable(database: str, table: str, numberColumns: int) -> int:
             3: table name ocuppied
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -264,6 +323,10 @@ def createTable(database: str, table: str, numberColumns: int) -> int:
         elif mode == "dict":
             val = dict.createTable(database, table, numberColumns)
 
+        if val == 0:
+            _database(database)["tablas"].append({"nombre": table, "columnas": numberColumns, "pk": []})
+            _Guardar()
+
         return val
 
     else:
@@ -281,13 +344,13 @@ def showTables(database: str) -> list:
             None: non-existent database
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
-        val = -1
+        val = None
 
         if mode == "avl":
             val = avl.showTables(database)
@@ -313,7 +376,7 @@ def showTables(database: str) -> list:
         return val
 
     else:
-        return 2
+        return None
 
 
 def extractTable(database: str, table: str) -> list:
@@ -328,11 +391,11 @@ def extractTable(database: str, table: str) -> list:
             None: non-existent database, non-existent table, an error ocurred
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -378,11 +441,11 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
             None: non-existent database, non-existent table, an error ocurred
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -430,11 +493,11 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
             5: PK out of bounds
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -459,6 +522,10 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
         elif mode == "dict":
             val = dict.alterAddPK(database, table, columns)
 
+        if val==0:
+            _table(database, table)["pk"]=columns
+            _Guardar()
+
         return val
 
     else:
@@ -480,11 +547,11 @@ def alterDropPK(database: str, table: str) -> int:
             4: non-existent PK
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -509,6 +576,10 @@ def alterDropPK(database: str, table: str) -> int:
         elif mode == "dict":
             val = dict.alterDropPK(database, table)
 
+        if val == 0:
+            _table(database, table)["pk"]=[]
+            _Guardar()
+
         return val
 
     else:
@@ -519,11 +590,11 @@ def alterAddIndex(database: str, table: str, references: dict) -> int:
     """
     DOCSTRING
     """
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -570,11 +641,11 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
             4: new table name occupied
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -599,6 +670,10 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
         elif mode == "dict":
             val = dict.alterTable(database, tableOld, tableNew)
 
+        if val == 0:
+            _table(database, tableOld)["nombre"]=tableNew
+            _Guardar()
+
         return val
 
     else:
@@ -620,11 +695,11 @@ def alterAddColumn(database: str, table: str, default: any) -> int:
             3: non-existent table
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -649,6 +724,10 @@ def alterAddColumn(database: str, table: str, default: any) -> int:
         elif mode == "dict":
             val = dict.alterAddColumn(database, table, default)
 
+        if val == 0:
+            _table(database, table)["columnas"]+=1
+            _Guardar()
+
         return val
 
     else:
@@ -672,11 +751,11 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
             5: column index out of bounds
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -700,6 +779,10 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
 
         elif mode == "dict":
             val = dict.alterDropColumn(database, table, columnNumber)
+            
+        if val == 0:
+            _table(database, table)["columnas"]-=1
+            _Guardar()
 
         return val
 
@@ -721,11 +804,11 @@ def dropTable(database: str, table: str) -> int:
             3: non-existent table
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -749,6 +832,10 @@ def dropTable(database: str, table: str) -> int:
 
         elif mode == "dict":
             val = dict.dropTable(database, table)
+            
+        if val == 0:
+            _database(database)["tablas"].remove(_table(database, table))
+            _Guardar()
 
         return val
 
@@ -773,11 +860,11 @@ def insert(database: str, table: str, register: list) -> int:
             5: register out of bounds
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -822,11 +909,11 @@ def loadCSV(file: str, database: str, table: str) -> list:
             empty list: non-existent database, non-existent table, an error occured, csv file is empty
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -870,11 +957,11 @@ def extractRow(database: str, table: str, columns: list) -> list:
             empty list: non-existent database, non-existent table, an error ocurred
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -922,11 +1009,11 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
             4: non-existent PK
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -973,11 +1060,11 @@ def delete(database: str, table: str, columns: list) -> int:
             4: non-existent PK
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -1022,11 +1109,11 @@ def truncate(database: str, table: str) -> int:
             3: non-existent table
     """
 
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -1057,7 +1144,7 @@ def truncate(database: str, table: str) -> int:
         return 2
 
 
-#===============================//================================
+#===============================//=====================================
 
 
 def alterDatabaseMode(database: str, mode: str) -> int:
@@ -1071,43 +1158,50 @@ def alterDatabaseMode(database: str, mode: str) -> int:
             0: successful operation
             1: an error ocurred
             2: non-existent database
-            3: non-valid mode
+            4: non-valid mode
     """
 
     try:
 
-        bd = _Buscar(database)
-        # no funciona si la tabla no tiene registros
+        bd = _database(database)
 
         if bd:
 
-            if bd[1] == mode or mode not in ["avl", "b", "bplus", "dict", "hash", "isam", "json"]:
+            if bd["modo"] == mode or mode not in ["avl", "b", "bplus", "dict", "hash", "isam", "json"]:
                 return 4
 
             data=[]
 
-            for tabla in showTables(database):
-                # lista de [tabla, registros]
-                registros = extractTable(database, tabla)
-                data.append([tabla, registros, len(registros[0])])
+            lista_tablas=showTables(database)
+
+            if lista_tablas:
+
+                for tabla in lista_tablas:
+                    # lista de [tabla, registros]       
+                    
+                    registros = extractTable(database, tabla)
+                    data.append([tabla, registros])
 
 
             #creando la nueva base de datos
-            createDatabase(database+"_temp", mode)
+            createDatabase(database+"_temp", mode, bd["encoding"])
 
             for tabla in data:
 
-                createTable(database+"_temp", data[0], data[2])
+                tb = _table(database, tabla[0])
 
-                for registro in data[1]:
+                createTable(database+"_temp", tb["nombre"], tb["columnas"])
+                alterAddPK(database+"_temp",tb["nombre"], tb["pk"])
 
-                    insert(database+"_temp", data[0], registro)
+                for registro in tabla[1]:
 
-            else:
-                dropDatabase(database)            
-                alterDatabase(database+"_temp", database)
+                    insert(database+"_temp", tb["nombre"], registro)
 
-                return 0
+            dropDatabase(database)
+            alterDatabase(database+"_temp", database)
+            
+
+            return 0
             
         else:
             return 2    
@@ -1117,40 +1211,76 @@ def alterDatabaseMode(database: str, mode: str) -> int:
 
 
 def alterTableMode(database: str, table: str, mode: str) -> int:
-    """Modifies a table inner encoding
+    """Restructures a table inner structure
 
         Parameters:\n
             database (str): name of the database
             table (str): name of the table
-            mode (str): new encoding
+            mode (str): new mode of the table
 
         Returns:\n
             0: successful operation
             1: an error ocurred
             2: non-existent database
             3: non-existent table
-            3: non-valid encoding
+            4: non-valid mode
     """
     try:
 
-        bd = _Buscar(database)
+        bd = _database(database)
 
         if bd:
-            pass
+
+            if bd["modo"] == mode or mode not in ["avl", "b", "bplus", "dict", "hash", "isam", "json"]:
+                return 4
+
+            data=[]
+
+            lista_tablas=showTables(database)
+
+            if lista_tablas:
+
+                for tabla in lista_tablas:
+                    # lista de [tabla, registros]       
+                    
+                    registros = extractTable(database, tabla)
+                    data.append([tabla, registros])
+
+
+            #creando la nueva base de datos
+            createDatabase(database+"_temp", mode, bd["encoding"])
+
+            for tabla in data:
+
+                tb = _table(database, tabla[0])
+
+                createTable(database+"_temp", tb["nombre"], tb["columnas"])
+                alterAddPK(database+"_temp",tb["nombre"], tb["pk"])
+
+                for registro in tabla[1]:
+
+                    insert(database+"_temp", tb["nombre"], registro)
+
+            dropDatabase(database)
+            alterDatabase(database+"_temp", database)
+            
+
+            return 0
             
         else:
             return 2    
 
-    except:
+    except Exception:
+        traceback.print_exc()
         return 1
 
 
 def alterTableAddFK(database: str, table: str, indexName: str, columns: list, tableRef: str, columnsRef: list) -> int:
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 
@@ -1182,11 +1312,11 @@ def alterTableAddFK(database: str, table: str, indexName: str, columns: list, ta
 
 
 def alterTableDropFK(database: str, table: str, indexName: str) -> int:
-    bd = _Buscar(database)
+    bd = _database(database)
 
     if bd:
 
-        mode = bd[1]
+        mode = bd["modo"]
 
         val = -1
 

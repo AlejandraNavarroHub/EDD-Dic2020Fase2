@@ -1,5 +1,6 @@
 # Default ignored files
 .idea
+.vscode
 data
 __pycache__
 prueba.py
