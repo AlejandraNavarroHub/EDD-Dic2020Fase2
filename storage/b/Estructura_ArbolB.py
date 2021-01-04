@@ -319,7 +319,13 @@ class arbolB:
         return 0    
 
     def graficar(self):
-        f = open('archivo.dot', 'w',encoding='utf-8')
+        
+        path="storage/temp"
+        try:
+            os.mkdir(path)
+        except: pass
+
+        f = open(path+'/b.dot', 'w',encoding='utf-8')
         f.write("digraph dibujo{\n")
         f.write('graph [ordering="out"];')
         f.write('rankdir=TB;\n')
@@ -328,7 +334,8 @@ class arbolB:
         f = self._graficar(f,self.root)
         f.write('}')
         f.close()
-        os.system('dot -Tpng archivo.dot -o salida.png')
+        os.system('dot -Tpng storage/temp/b.dot -o storage/temp/b.png')
+        os.remove('storage/temp/b.dot')
     
     def _graficar(self, f, temp):
         global t

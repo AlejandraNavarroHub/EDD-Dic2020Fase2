@@ -404,3 +404,8 @@ def truncate(database: str, table: str) -> int:
             
     except:
         return 1
+
+
+def _Cargar(database, table):
+
+    _storage.Cargar(database, table)

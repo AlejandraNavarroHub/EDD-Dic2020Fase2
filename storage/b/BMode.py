@@ -204,3 +204,8 @@ def truncate(database: str, table: str) -> int:
     except:
         pass
     return r
+    
+    
+def _Cargar(database, table):
+
+    serializar.rollback(database+"-"+table+"-B").graficar()

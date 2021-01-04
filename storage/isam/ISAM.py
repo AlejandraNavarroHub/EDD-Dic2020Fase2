@@ -188,20 +188,28 @@ class ISAM:
 
 # graficar la estructura
     def chart(self):
-        file = open('isam.dot', 'w')
+        path="storage/temp"
+        try:
+            os.mkdir(path)
+        except: pass
+
+        file = open(path+'/isam.dot', 'w')
         file.write('digraph isam {\n')
         file.write('rankdir=TD;\n')
         file.write('node[shape=box]\n')
         file.close()
         self._chart(self.root, 0)
-        file = open('isam.dot', "a")
+        file = open(path+'/isam.dot', "a")
         file.write('}')
         file.close()
-        os.system("dot -Tpng isam.dot -o isam.png")
+        os.system("dot -Tpng storage/temp/isam.dot -o storage/temp/isam.png")
+        os.remove('storage/temp/isam.dot')
 
     def _chart(self, tmp, level):
+        path="storage/temp"
+
         if tmp:
-            file = open('isam.dot', 'a')
+            file = open(path+'/isam.dot', 'a')
             tail = ''
             for i in tmp.values:
                 tail += str(i.PK) + ', '

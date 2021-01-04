@@ -419,7 +419,12 @@ class Tabla(object):
             return 1
 
     def Grafico(self):
-        file = open('hash.dot', "w")
+        path="storage/temp"
+        try:
+            os.mkdir(path)
+        except: pass
+
+        file = open(path+'/hash.dot', "w")
         file.write("digraph grafica{" + os.linesep)
         file.write('graph [pad="0.5"];' + os.linesep)
         file.write("nodesep=.05;" + os.linesep)
@@ -458,7 +463,9 @@ class Tabla(object):
 
         file.write(' }' + os.linesep)
         file.close()
-        subprocess.call('dot -Tpng hash.dot -o hash.png')
+        subprocess.call('dot -Tpng storage/temp/hash.dot -o storage/temp/hash.png')
+        os.remove('storage/temp/hash.dot')
+
 
     def alterAddColumn(self, default):
         try:

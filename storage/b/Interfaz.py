@@ -90,6 +90,7 @@ class PP:
                 aux.append(i)
             self.con["values"] = aux
             self.con.current(0)
+
     
     def __Reportes(self):
         if self.com.get() != "Seleccionar" and self.con.get() != "Seleccionar":

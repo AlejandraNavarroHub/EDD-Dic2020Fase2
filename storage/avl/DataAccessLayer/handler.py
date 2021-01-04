@@ -98,11 +98,11 @@ class Handler:
         os.makedirs('data/avl')
         f = open('./data/avl/root.dat', 'wb')
         f.close()
-        if os.path.exists("tmp"):
-            shutil.rmtree("tmp")
+        if os.path.exists("storage/temp"):
+            shutil.rmtree("storage/temp")
 
     # Reports
     @staticmethod
     def init_DirReports():
-        if not os.path.exists("tmp"):
-            os.makedirs("tmp")
+        if not os.path.exists("storage/temp"):
+            os.makedirs("storage/temp")

@@ -3,6 +3,8 @@
 # Copyright (c) 2020 TytusDb Team
 
 
+
+
 from storage.avl import avlMode as avl
 from storage.b import BMode as b
 from storage.bplus import BPlusMode as bplus
@@ -55,6 +57,31 @@ def __init__():
     # for db in cada carpeta, append to lista_general
 
 __init__()
+
+
+def _Graficar(database, table):
+
+    mode = _table(database, table)["modo"]
+
+    if mode == "avl":
+
+        avl._Cargar(database, table)
+
+    elif mode == "b":
+
+        b._Cargar(database, table)
+
+    elif mode == "bplus":
+
+        bplus._Cargar(database, table)
+
+    if mode == "hash":
+
+        hash._Cargar(database, table)
+
+    elif mode == "isam":
+
+        isam._Cargar(database, table)
 
 
 def dropAll():
@@ -115,6 +142,9 @@ def _foreign_key(database, foreign_key):
 
     return False
     
+
+# def Comprobar(database, table, registro)
+
 
 def createDatabase(database: str, mode: str, encoding: str) -> int:
     """Creates a database
@@ -391,7 +421,7 @@ def showTables(database: str) -> list:
 
         for tabla in bd["tablas"]:
             temp.append(tabla["nombre"])
-
+            
         return temp
 
     else:

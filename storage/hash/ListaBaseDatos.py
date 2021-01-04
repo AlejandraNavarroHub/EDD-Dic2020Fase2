@@ -142,4 +142,4 @@ class ListaBaseDatos:
         temp=self.Buscar(database)
 
         if temp:
-            return temp.Cargar(table)
+            return temp.Cargar(table).Grafico()

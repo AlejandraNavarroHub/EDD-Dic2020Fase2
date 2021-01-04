@@ -39,7 +39,7 @@ class TreeGraph:
                 return
 
     def export(self):
-        fname = 'tmp/grafo-avl'
+        fname = 'storage/temp/avl'
         archivo = open(fname + '.dot', 'w')
         archivo.write('digraph D{\ngraph[bgcolor="#0f1319"]\n')
         archivo.write(

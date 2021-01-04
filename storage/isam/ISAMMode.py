@@ -680,8 +680,5 @@ def chartList(list):
     file.close()
     os.system("dot -Tpng list.dot -o list.png")
 
-
-
-
-    
-    
+def _Cargar(database, table):
+    chart(database, table)

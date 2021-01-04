@@ -113,3 +113,9 @@ def truncate(database: str, table: str) -> int:
 
 def dropAll():
     return DB.dropAll()
+
+def _Cargar(database, table):
+
+    from .DataAccessLayer import reports
+
+    reports.graphAVL(database, table)
