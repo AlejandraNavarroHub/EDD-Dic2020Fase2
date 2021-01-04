@@ -3,8 +3,6 @@
 # Copyright (c) 2020 TytusDb Team
 
 
-
-
 from storage.avl import avlMode as avl
 from storage.b import BMode as b
 from storage.bplus import BPlusMode as bplus
@@ -57,31 +55,6 @@ def __init__():
     # for db in cada carpeta, append to lista_general
 
 __init__()
-
-
-def _Graficar(database, table):
-
-    mode = _table(database, table)["modo"]
-
-    if mode == "avl":
-
-        avl._Cargar(database, table)
-
-    elif mode == "b":
-
-        b._Cargar(database, table)
-
-    elif mode == "bplus":
-
-        bplus._Cargar(database, table)
-
-    if mode == "hash":
-
-        hash._Cargar(database, table)
-
-    elif mode == "isam":
-
-        isam._Cargar(database, table)
 
 
 def dropAll():
@@ -143,7 +116,72 @@ def _foreign_key(database, foreign_key):
     return False
     
 
-# def Comprobar(database, table, registro)
+def _Comprobar(database, table, registro):
+
+    db = _database(database)
+
+    if db:
+
+        for fk in db["fks"]:
+
+            if fk["table"].casefold() == table.casefold():
+
+                for i in range(len(fk["columns"])):
+
+                    pos=fk["columns"][i]
+                    pos_r=fk["columnsRef"][i]
+
+                    registros_r = extractTable(database, fk["tableRef"])
+
+                    columna_r = []
+
+                    for registro_r in registros_r:
+
+                        columna_r.append(registro_r[pos_r])
+
+                    if registro[pos] not in columna_r:
+
+                        return False
+
+
+        return True
+
+    else:
+        return False
+
+
+def _Graficar(database, table):
+
+    try:
+        mode = _table(database, table)["modo"]
+
+        if mode == "avl":
+
+            avl._Cargar(database, table)
+
+        elif mode == "b":
+
+            b._Cargar(database, table)
+
+        elif mode == "bplus":
+
+            bplus._Cargar(database, table)
+
+        if mode == "hash":
+
+            hash._Cargar(database, table)
+
+        elif mode == "isam":
+
+            isam._Cargar(database, table)
+
+        return 0
+
+    except:
+        return 1
+
+
+#===============================//=====================================
 
 
 def createDatabase(database: str, mode: str, encoding: str) -> int:
@@ -934,32 +972,37 @@ def insert(database: str, table: str, register: list) -> int:
 
         if tb:
 
-            mode = tb["modo"]
+            if _Comprobar(database, table, register):
 
-            val = -1
+                mode = tb["modo"]
 
-            if mode == "avl":
-                val = avl.insert(database, table, register)
+                val = -1
 
-            elif mode == "b":
-                val = b.insert(database, table, register)
+                if mode == "avl":
+                    val = avl.insert(database, table, register)
 
-            elif mode == "bplus":
-                val = bplus.insert(database, table, register)
+                elif mode == "b":
+                    val = b.insert(database, table, register)
 
-            elif mode == "hash":
-                val = hash.insert(database, table, register)
+                elif mode == "bplus":
+                    val = bplus.insert(database, table, register)
 
-            elif mode == "isam":
-                val = isam.insert(database, table, register)
+                elif mode == "hash":
+                    val = hash.insert(database, table, register)
 
-            elif mode == "json":
-                val = json.insert(database, table, register)
+                elif mode == "isam":
+                    val = isam.insert(database, table, register)
 
-            elif mode == "dict":
-                val = dict.insert(database, table, register)
+                elif mode == "json":
+                    val = json.insert(database, table, register)
 
-            return val
+                elif mode == "dict":
+                    val = dict.insert(database, table, register)
+
+                return val
+
+            else:
+                return -1
 
         else:
             return 3

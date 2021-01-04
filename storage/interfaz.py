@@ -1,6 +1,7 @@
-# HASH Mode Package
+# -------------------------------
 # Released under MIT License
 # Copyright (c) 2020 TytusDb Team
+
 
 import os
 from storage.misc import serealizar as sr
@@ -8,10 +9,6 @@ from storage.misc import serealizar as sr
 from tkinter import *
 from tkinter import ttk
 from storage import main as h
-from storage.avl.DataAccessLayer import reports as GraficoAVL
-from storage.b import BMode as B
-from storage.hash import Tabla as GraficoHash
-from storage.bplus import BplusTree as GraficoBplus
 
 _main_path = os.getcwd() + "\\data"
 
@@ -1460,12 +1457,10 @@ class Tuples_Window:
         return Frame1
 
     def ImageStructure(self, database, table):
+        
         h._Graficar(database, table)
 
 
 '''print(h.createDatabase("NewData4avl","avl","utf8"))'''
 print(h.showDatabases())
 Mostrar()
-
-
-
