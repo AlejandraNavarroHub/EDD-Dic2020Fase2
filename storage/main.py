@@ -12,7 +12,7 @@ from storage.isam import ISAMMode as isam
 from storage.json import jsonMode as json
 
 import os, traceback
-from storage.misc import serealizar as sr, ForeignKeyStr as fk_str, UniqueIndexStr as ui_str, IndexStr as i_str
+from storage.misc import serealizar as sr, ForeignKeyStr as fk_str, UniqueIndexStr as ui_str, IndexStr as i_str, checksum as ch
 
 _main_path = os.getcwd() + "\\data"
 
@@ -1785,12 +1785,13 @@ def checksumDatabase(database: str, mode: str) -> str:
     if bd:
 
         if mode not in ["MD5", "SHA256"]:
-            return 3
+            return None
 
+        return ch.checksumDatabase(database,mode)
         # return database_checksum(database, mode)
         
     else:
-        return 2
+        return None
 
 
 def checksumTable(database: str, table: str, mode: str) -> str:
@@ -1818,15 +1819,15 @@ def checksumTable(database: str, table: str, mode: str) -> str:
         if tb:
 
             if mode not in ["MD5", "SHA256"]:
-                return 3
+                return None
 
-        # return table_checksum(database, table, mode)
+            return ch.checksumTable(database,table,mode)
 
         else:
-            return 3
+            return None
         
     else:
-        return 2
+        return None
 
 
 #===============================//=====================================
