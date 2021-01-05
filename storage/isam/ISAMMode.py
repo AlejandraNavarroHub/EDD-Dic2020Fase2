@@ -83,11 +83,13 @@ def dropDatabase(database: str) -> int:
             databases = rollback('databasesISAM')
             index = showDatabases().index(database.lower())
             for i in databases[index].tables:
-                os.remove('data/tables/' + database.lower() + i + '.bin')
+                os.remove('data/isam/tables/' + database.lower() + i + '.bin')
             databases.pop(index)
             commit(databases, 'databasesISAM')
             return 0
-    except:
+    except Exception:
+        import traceback
+        traceback.print_exc()
         return 1
 
 #*----------------------------------tables-------------------------------------------*

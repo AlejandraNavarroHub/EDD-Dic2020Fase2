@@ -2,6 +2,7 @@
 # License:  Released under MIT License
 # Notice:   Copyright (c) 2020 TytusDB Team
 
+import os
 from . import DataBase as db
 from . import Serializable as serializar
 from . import Estructura_ArbolB as bt
@@ -30,6 +31,11 @@ def alterDatabase(databaseOld, databaseNew) -> int:
 
 def dropDatabase(database: str) -> int:
     r = b.dropDatabase(database)
+    list=showTables(database)
+
+    if list:
+        for table in list:
+            os.remove("data/b/"+database+"-"+table+"-b.bin")
     serializar.commit(b, "BDD")
     return r
 
