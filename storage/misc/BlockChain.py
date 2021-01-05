@@ -8,34 +8,11 @@ def GenerarHash(cadena):
     return hashlib.sha256(cadena.encode()).hexdigest()
 
 
-def CreateBlockChain(nombreTabla, datos, ruta):
-    idBloque = 0
-    anterior = '00000000000000000000000000000'
+def CreateBlockChain(nombreTabla, ruta):
+
     ruta = ruta + "\\SafeTables\\" + str(nombreTabla) + ".json"
-    datosString = []
-
-    # Aqui obtengo la lista de datos concatenados
-    for lista in datos:
-        contador = 0
-        cadena = ''
-        for dato in lista:
-            if contador == len(lista) - 1:
-                cadena += str(dato)
-                datosString.append(cadena)
-            else:
-                cadena += (str(dato) + ',')
-            contador += 1
-
-    bloques = []
-
-    for data in datosString:
-        h = GenerarHash(data)
-        DatosBloque = [idBloque, data, anterior, h]
-        bloques.append(DatosBloque)
-        idBloque += 1
-        anterior = h
-        file = open(ruta, "w+")
-        file.write(js.dumps([j for j in bloques]))
+    file = open(ruta, "w+")
+    file.write(js.dumps(['inicio']))
     file.close()
 
 
@@ -97,7 +74,11 @@ def insertSafeTable(nombreTabla, datos, ruta):
 
     id = len(lista)
     h = GenerarHash(cadena)
-    DatosBloque = [id, cadena, 'NewInsertInSafeTable', h]
+    if id == 1 and lista[0] == 'inicio':
+        DatosBloque = [id, cadena, '000000000000000000', h]
+        lista.pop()
+    else:
+        DatosBloque = [id, cadena, lista[id-1][3], h]
     lista.append(DatosBloque)
     file = open(ruta, "w+")
     file.write(js.dumps(lista))
@@ -156,8 +137,17 @@ listadedatos = [[1, 'pedro', '201901522'], [2, 'pedro1', '201901523'], [3, 'pedr
                 [7, 'pedro6', '201901528']]
 
 rutita = 'C:\\Users\\welma\\OneDrive\\Escritorio\\Cursos actuales\\EDD'
-CreateBlockChain('prueba', listadedatos, rutita)
+CreateBlockChain('prueba', rutita)
 
+for i in range(7):
+    insertSafeTable('prueba', listadedatos[i], rutita)
+
+GraphSafeTable('prueba', rutita)
+
+updateSafeTable('prueba', [4, 'pedro3', '201901525'], [4, 'datos', 'modificados'], rutita)
+input()
+GraphSafeTable('prueba', rutita)
+'''
 GraphSafeTable('prueba', rutita)
 
 if EsUnaTablaSegura('animales', rutita):
@@ -178,3 +168,4 @@ if EsUnaTablaSegura('prueba', rutita):
     insertSafeTable('prueba', [89, 'este', 'DatoNuevo'], rutita)
 else:
     print('No es una tabla segura')
+'''
