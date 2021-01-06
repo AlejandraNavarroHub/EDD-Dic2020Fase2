@@ -15,6 +15,7 @@ TytusStorage está dotado de funciones de enlazamiento de datos, seguridad, graf
 
 ## Índice
 
+- [Introduccion](#introduccion)
 - [Glosario](#glosario)
 - [FAQ](#faq)
 - [Uso de la librería](#uso-de-la-librería)
@@ -28,6 +29,10 @@ TytusStorage está dotado de funciones de enlazamiento de datos, seguridad, graf
 - [Uso del generador de diagramas de dependencias](#uso-del-generador-de-diagramas-de-dependencias)
 - [Uso del reportador gráfico](#uso-del-reportador-gráfico)
 
+## Introduccion 
+TytusStorage es una libreria que busca proveera las funciones necesarias para ser un DBMS consistente, eficaz y con un excelente rendimiento.
+Provee a los ususarios la forma de crear bases de datos con distintos modos de almacenamiento, dichos modos consisten cada uno en una estructura consistente diferente, el cual debe ser usado cada uno por su debidas carateristicas unicas, cada modo tiene ventajas y desventajas, las cuales el usuario puede explorar para saber explotarlas y usarlas a su favor, para una base pequeña con llaves primarias bien definidas y no consecutivas se puede usar un modo hash, el cual tiene un acceso rapido a sus datos y provee una optima consistencia, sin embargo para llaves continuas las tablas se vuleven cada vez mas grandes teniendo poco espacio utilizado, creando almacenamiento basura que no se puede eliminar. Es asi como cada modo nos provee de caracteristicas unicas y distintas, y esta libreria provee de 7 modos distintos.
+Sin embargo la libreria no esta destinada solamente al almacenamiento, tambien provee de otras funciones que esperan ser explotadas por el ususario, si se piensa enviar una base de datos es posible comprobar su integridad por medio del checksum, provee funciones de encriptacion para cualquier cadena de texto, modo seguro para las tablas y opciones de compresion de datos.
 
 ## Glosario
 
