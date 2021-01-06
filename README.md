@@ -1,5 +1,5 @@
 # TytusStorage
-*TytusStorage* es una librería [open-source](https://github.com/tytusdb/tytus/blob/main/LICENSE.md) escrita en Python.
+*TytusStorage* es una librería [Open-Source](https://github.com/tytusdb/tytus/blob/main/LICENSE.md) escrita en Python.
 
 ## Integrantes
 
