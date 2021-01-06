@@ -239,6 +239,16 @@ Parametros:
 | 3 | Tabla inexistente |
 | 4 | Modo seguro inexistente |
 
+### GraphSafeTable(database, table) 
+Grafica el los bloques de BlockChain de una tabla en modo seguro.
+Parametros:
+- database: Nombre de la base de datos a la que pertenece la tabla 
+- table: Nombre de la tabla a la cual se desea graficar }
+
+| Valor de retorno | Definición |
+| ------ | ------ |
+| Imagen | Grafo de los bloques |
+
 
 ## Uso del generador de diagramas de dependencias
 
