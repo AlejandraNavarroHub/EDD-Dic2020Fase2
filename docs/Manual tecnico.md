@@ -105,12 +105,15 @@ El metodo que involucra algo mas conplejo es la generacion de la llave en base a
 `
 from cryptography.hazmat.primitives import hashes
 `
+
 `
 from cryptography.hazmat.backends import default_backend
 `
+
 `
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 `
+
 
 Con estos imports el metodo que genera la llave es bastante sencillo, siendo el siguiente, donde _nombre_ es la contraseña con la que se hara la encriptacion:
 ```sh
