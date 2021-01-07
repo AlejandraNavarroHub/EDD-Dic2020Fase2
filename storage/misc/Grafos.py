@@ -7,6 +7,12 @@ from storage import main as h
 
 
 def graphDSD(database: str):
+    pat = "storage/temp"
+    try:
+        os.mkdir(pat)
+    except:
+        pass
+
     try:
 
         list_node = []
@@ -44,7 +50,11 @@ def graphDSD(database: str):
 
 
 def graphDF(database: str, table: str):
-
+    pat = "storage/temp"
+    try:
+        os.mkdir(pat)
+    except:
+        pass
     try:
         list_node = []
         list_node_PK = []
