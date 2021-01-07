@@ -419,7 +419,7 @@ class Tabla(object):
             return 1
 
     def Grafico(self):
-        path="storage/temp"
+        path="data/graph"
         try:
             os.mkdir(path)
         except: pass
@@ -463,8 +463,8 @@ class Tabla(object):
 
         file.write(' }' + os.linesep)
         file.close()
-        subprocess.call('dot -Tpng storage/temp/hash.dot -o storage/temp/hash.png')
-        os.remove('storage/temp/hash.dot')
+        subprocess.call('dot -Tpng data/graph/hash.dot -o data/graph/hash.png')
+        os.remove('data/graph/hash.dot')
 
 
     def alterAddColumn(self, default):

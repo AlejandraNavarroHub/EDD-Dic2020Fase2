@@ -429,12 +429,12 @@ class BPlusTree:
     #---------Graficar-----------------#
     def graficar(self, database, table):
         
-        path="storage/temp"
+        path="data/graph"
         try:
             os.mkdir(path)
         except: pass
 
-        f= open(f'storage/temp/bplus.dot', 'w',encoding='utf-8')
+        f= open(f'data/graph/bplus.dot', 'w',encoding='utf-8')
         f.write("digraph dibujo{\n")
         f.write('graph [ordering="out"];')
         f.write('rankdir=TB;\n')
@@ -448,8 +448,8 @@ class BPlusTree:
             f.write(lista1)
         f.write('}')
         f.close()
-        os.system(f'dot -Tpng storage/temp/bplus.dot -o storage/temp/bplus.png')
-        os.remove('storage/temp/bplus.dot')
+        os.system(f'dot -Tpng data/graph/bplus.dot -o data/graph/bplus.png')
+        os.remove('data/graph/bplus.dot')
     
     def _graficar(self, f, temp, nombre):
         if temp:

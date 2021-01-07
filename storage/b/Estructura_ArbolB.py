@@ -320,7 +320,7 @@ class arbolB:
 
     def graficar(self):
         
-        path="storage/temp"
+        path="data/graph"
         try:
             os.mkdir(path)
         except: pass
@@ -334,8 +334,8 @@ class arbolB:
         f = self._graficar(f,self.root)
         f.write('}')
         f.close()
-        os.system('dot -Tpng storage/temp/b.dot -o storage/temp/b.png')
-        os.remove('storage/temp/b.dot')
+        os.system('dot -Tpng data/graph/b.dot -o data/graph/b.png')
+        os.remove('data/graph/b.dot')
     
     def _graficar(self, f, temp):
         global t

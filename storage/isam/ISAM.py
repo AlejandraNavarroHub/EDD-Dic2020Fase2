@@ -188,7 +188,7 @@ class ISAM:
 
 # graficar la estructura
     def chart(self):
-        path="storage/temp"
+        path="data/graph"
         try:
             os.mkdir(path)
         except: pass
@@ -202,11 +202,11 @@ class ISAM:
         file = open(path+'/isam.dot', "a")
         file.write('}')
         file.close()
-        os.system("dot -Tpng storage/temp/isam.dot -o storage/temp/isam.png")
-        os.remove('storage/temp/isam.dot')
+        os.system("dot -Tpng data/graph/isam.dot -o data/graph/isam.png")
+        os.remove('data/graph/isam.dot')
 
     def _chart(self, tmp, level):
-        path="storage/temp"
+        path="data/graph"
 
         if tmp:
             file = open(path+'/isam.dot', 'a')

@@ -60,7 +60,7 @@ def alterDatabase(databaseOld: str, databaseNew: str) -> int:
             databases[index].name = databaseNew.lower()
             commit(databases, 'databasesISAM')
             for i in showTables(databaseNew):
-                os.rename('data/tables/' + databaseOld.lower() + i.lower() + '.bin', 'data/tables/' + databaseNew.lower() + i.lower() + '.bin')
+                os.rename('data/isam/tables/' + databaseOld.lower() + i.lower() + '.bin', 'data/isam/tables/' + databaseNew.lower() + i.lower() + '.bin')
             return 0
     except:
         return 1
@@ -322,7 +322,7 @@ def alterTable(database, tableOld, tableNew):
             table = rollback('tables/' + database.lower() + tableOld.lower())
             table.name = tableNew.lower()
             commit(table, 'tables/' + database.lower() + tableOld.lower())
-            os.rename('data/tables/' + database.lower() + tableOld.lower() + '.bin', 'data/tables/' + database.lower() + tableNew.lower() + '.bin')
+            os.rename('data/isam/tables/' + database.lower() + tableOld.lower() + '.bin', 'data/isam/tables/' + database.lower() + tableNew.lower() + '.bin')
             index = showDatabases().index(database.lower())
             table_index = databases[index].tables.index(tableOld.lower())
             databases[index].tables[table_index] = tableNew.lower()
@@ -416,7 +416,7 @@ def dropTable(database, tableName):
             return 3
         else:
             databases = rollback('databasesISAM')
-            os.remove('data/tables/' + database.lower() + tableName.lower() + '.bin')
+            os.remove('data/isam/tables/' + database.lower() + tableName.lower() + '.bin')
             index = showDatabases().index(database.lower())
             table_index = databases[index].tables.index(tableName.lower())
             databases[index].tables.pop(table_index)

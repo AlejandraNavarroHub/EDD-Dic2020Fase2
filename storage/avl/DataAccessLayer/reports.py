@@ -15,8 +15,8 @@ def graphicTables(database: str):
         for i in databases:
             if database == i.name:
                 Handler.init_DirReports()
-                fname = 'tmp/db-tables.png'
-                tables = open("tmp/tables.dot", "w")
+                fname = 'data/graph/db-tables.png'
+                tables = open("data/graph/tables.dot", "w")
                 temporal = 'digraph tables{\ngraph[bgcolor="#0f1319"] \nnode[style="filled",color="black", ' \
                            'fillcolor="#45c2c5",shape="box",fontcolor="black",fontname="Century Gothic", ' \
                            'fontsize=18];\n'
@@ -27,8 +27,8 @@ def graphicTables(database: str):
                 temporal += "}"
                 tables.write(temporal)
                 tables.close()
-                os.system("dot -Tpng tmp/tables.dot -o " + fname)
-                os.remove('tmp/tables.dot')
+                os.system("dot -Tpng data/graph/tables.dot -o " + fname)
+                os.remove('data/graph/tables.dot')
                 return fname
     except:
         return None
@@ -38,8 +38,8 @@ def graphicDatabases():
     try:
         Handler.init_DirReports()
         databases = Handler.rootinstance()
-        fname = 'tmp/databases.png'
-        tables = open("tmp/databases.dot", "w")
+        fname = 'data/graph/databases.png'
+        tables = open("data/graph/databases.dot", "w")
         temporal = 'digraph databases{\ngraph[bgcolor="#0f1319"] \nnode[style="filled",color="black", ' \
                    'fillcolor="#45c2c5", shape="box",fontcolor="black", fontname="Century Gothic", fontsize=18];\n'
         c = 0
@@ -49,8 +49,8 @@ def graphicDatabases():
         temporal += "}"
         tables.write(temporal)
         tables.close()
-        os.system("dot -Tpng tmp/databases.dot -o " + fname)
-        os.remove('tmp/databases.dot')
+        os.system("dot -Tpng data/graph/databases.dot -o " + fname)
+        os.remove('data/graph/databases.dot')
         return fname
     except:
         return None
@@ -62,7 +62,7 @@ def graphAVL(database: str, table: str):
         avl = Handler.tableinstance(database, table)
         grafo = TreeGraph(avl)
         grafo.export()
-        return 'tmp/grafo-avl.png'
+        return 'data/graph/grafo-avl.png'
     except:
         return None
 
@@ -72,8 +72,8 @@ def graphTuple(database: str, table: str, index):
         Handler.init_DirReports()
         avl = Handler.tableinstance(database, table)
         tupla = avl.search(index)
-        fname = 'tmp/tupla.png'
-        tuples = open("tmp/tupla.dot", "w")
+        fname = 'data/graph/tupla.png'
+        tuples = open("data/graph/tupla.dot", "w")
         temporal = 'digraph tables{\ngraph[bgcolor="#0f1319"] \nnode[style="filled",color="black", ' \
                    'fillcolor="#45c2c5",shape="box",fontcolor="black",fontname="Century Gothic", fontsize=18];\n'
         c = 0
@@ -83,8 +83,8 @@ def graphTuple(database: str, table: str, index):
         temporal += "}"
         tuples.write(temporal)
         tuples.close()
-        os.system("dot -Tpng tmp/tupla.dot -o " + fname)
-        os.remove('tmp/tupla.dot')
+        os.system("dot -Tpng data/graph/tupla.dot -o " + fname)
+        os.remove('data/graph/tupla.dot')
         return fname
     except:
         return None

@@ -135,7 +135,11 @@ def GraphSafeTable(nombreTabla, ruta):
     lista = js.loads(file.read())
     file.close()
 
-    file = open('BlockChain.dot', "w")
+    try:
+        os.mkdir("data/graph")
+    except: pass
+
+    file = open('data/graph/BlockChain.dot', "w")
     file.write("graph grafica{" + os.linesep)
     file.write("rankdir=LR;" + os.linesep)
     contador = 0
@@ -170,5 +174,5 @@ def GraphSafeTable(nombreTabla, ruta):
 
     file.write('}')
     file.close()
-    subprocess.call('dot -Tpng BlockChain.dot -o BlockChain.png')
-    os.system('BlockChain.png')
+    subprocess.call('dot -Tpng data/graph/BlockChain.dot -o data/graph/BlockChain.png')
+    os.remove("data/graph/BlockChain.dot")
