@@ -86,7 +86,168 @@ cuerpo
 
 ## Administrador de seguridad
 
-cuerpo
+El administrador de seguridad es una parte de la libreria que se encarga, como su nombre lo inidica, de proporcionar metodos de seguridad en base a criptografia y BlockChain.
+
+Para estos metodos se manejaron dos archivos py extras que se utilizan como librerias, para tener en la libreria principal un codigo mas sencillo y legible, en el cual solo se invocan las funciones de las librerias creadas, los archivos py utilizados fueron llamadas BlockChain y compresion, dichos archivos estan alojados en la carpeta /misc, en ella se puede visualizar dichos archivos para poder examinar los metodos codificados, a continuacion se explican mas a detalle estos archivos.
+
+### Archivo compresion
+Para el archivo de compresion se hizo uso de la libreria cryptography proveida por python, dicha libreria no es nativa, por lo cual se debe instalar, para instalarla y hacer uso de sus metodos se requiere ejecutar el siguiente comando:
+
+```sh
+pip install cryptography
+```
+Si requiere una explicacion mas detallada de la libreria *cryptography* puede consultarla [aqui.](https://pypi.org/project/cryptography/ "Documentacion Cryptography")
+
+Con esta libreria la encriptacion y desencriptacion es bastante sencilla, se invoca un objeto fernet, de la libreria cryptography, pasandole la llave con la que se hara la encriptacion o desencriptacion, para luego invocar el metodo encrypt o decrypt respectivamente.
+
+El metodo que involucra algo mas conplejo es la generacion de la llave en base a la password que se brinda, pues fernet lo hace de manera aleatoria, se hizo uso de la misma libreria cryptography pero utilizando sus sublibrerias, para lograrlo se requiere de las siguientes importaciones:
+
+`
+from cryptography.hazmat.primitives import hashes
+`
+`
+from cryptography.hazmat.backends import default_backend
+`
+`
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+`
+
+Con estos imports el metodo que genera la llave es bastante sencillo, siendo el siguiente, donde _nombre_ es la contraseña con la que se hara la encriptacion:
+```sh
+      kript = PBKDF2HMAC(hashes.SHA256(), 32, b'team15', 100, default_backend())
+      key = base64.urlsafe_b64encode(kript.derive(nombre.encode()))
+```
+
+De esta manera se generan los metodos de encriptacion y desencriptacion, siendo los siguientes:
+```sh
+    def encriptar(mensaje, llave):
+        f = Fernet(GenerarLlave(llave))
+        byteMessage = mensaje.encode()
+        return f.encrypt(byteMessage).decode()
+
+    def desencriptar(mensaje, llave):
+        f = Fernet(GenerarLlave(llave))
+        return f.decrypt(mensaje.encode()).decode()
+```
+Dichos metodos son solo llamados en la libreria principal, haciendo una importacion de compresion y nombrandola como *comp*, acomodandolos en un try por cualquier error, el codigo en la libreria principal queda implementado de la siguient manera:
+
+```sh
+    try:
+        return comp.encriptar(backup, password)
+    except:
+        return '1'
+```
+
+### Archivo BlockChain
+El blockchain se utiliza como un metodo para proporcionar tablas seguras, es decir todo insert que se hace mientras el modo esta activo se almacena en bloques, que generan un hash con los datos ingresados y guardan el hash anterior, esto genera una cadena consistente en la cual se puede comprobar que los datos no hallan cambiado, en caso se haga un update el hash del bloque cambiara, pero el atributo anterior de el siguiente bloque no, lo cual creara una inconsistencia con lo cual se comprobara que la tabla fue modificada.
+
+Al igual que con el archivo compresion todas las funciones se crearon desde aqui para solo ser invocadas en la libreria principal.
+
+El hash de los datos es generado usando la libreria *hashlib*, dicha libreria es nativa, por lo cual no es necesaria ninguna instalacion, la funcion para generar el hash de los datos es la siguiente:
+```sh
+def GenerarHash(cadena):
+    return hashlib.sha256(cadena.encode()).hexdigest(
+```
+
+Al activar el modo seguro se crea el archivo json de la tabla como *data/SafeTable/nombreTabla.json*, esto se usa para la comprobacion de si una tabla tiene modo seguro, la comprobacion es sencilla, solo se comprueba si existe un json con el nombre de la tabla de la siguiente manera:
+```sh
+def EsUnaTablaSegura(nombreTabla, ruta):
+    ruta = ruta + "\\SafeTables\\" + str(nombreTabla) + ".json"
+    return os.path.isfile(ruta)
+```
+
+Esta comprobacion es util para saber si una tabla esta en modo seguro, esto se comprueba en los inserts y los updates de la libreria principal, si el insert fue exitoso y la tabla esta en modo seguro se debe llamar al metodo *InsertSafeTable* de la libreria BlockChain, el metodo recibe el nombre de la tabla y los datos a ingresar, busca el archivo json por medio de la ruta y el nombre de la tabla, lo lee y recupera la lista de bloques, esto lo hace para ingresar el nuevo bloque y volver a escribir el archivo, el metodo es el siguiente:
+```sh
+def insertSafeTable(nombreTabla, datos, ruta):
+    cadena = ''
+    contador = 0
+    ruta = ruta + "\\SafeTables\\" + str(nombreTabla) + ".json"
+
+    for dato in datos:
+        if contador == len(datos) - 1:
+            cadena += str(dato)
+        else:
+            cadena += (str(dato) + ',')
+        contador += 1
+
+    file = open(ruta, "r")
+    lista = js.loads(file.read())
+    file.close()
+
+    id = len(lista)
+    h = GenerarHash(cadena)
+    if id == 1 and lista[0] == 'inicio':
+        DatosBloque = [0, cadena, '000000000000000000', h]
+        lista.pop()
+    else:
+        id -= 1
+        DatosBloque = [id, cadena, lista[id-1][3], h]
+        lista.pop()
+    lista.append(DatosBloque)
+    lista.append([45612, 'datofinalParaComprobacionFinal', h, h])
+    file = open(ruta, "w+")
+    file.write(js.dumps(lista))
+    file.close()
+```
+
+La misma logica funciona con los updates, si la tabla esta en modo seguro se debe extraer la tupla sin modificacion primero, si el update fue exitoso se debe hacer otro extractRow pero con los datos ya modificados, de esta manera recuperamos los datos necesarios para invocar el metodo update de BlockChain para cambiar el hash del dato modificado, el update de la libreria es el siguiente:
+```sh
+def updateSafeTable(nombreTabla, datos, datosmodificados, ruta):
+    cadena = ''
+    cadenaModificcada = ''
+    contador = 0
+    ruta = ruta + "\\SafeTables\\" + str(nombreTabla) + ".json"
+
+    for dato in datos:
+        if contador == len(datos) - 1:
+            cadena += str(dato)
+        else:
+            cadena += (str(dato) + ',')
+        contador += 1
+    contador = 0
+
+    for dato in datosmodificados:
+        if contador == len(datos) - 1:
+            cadenaModificcada += str(dato)
+        else:
+            cadenaModificcada += (str(dato) + ',')
+        contador += 1
+
+    file = open(ruta, "r")
+    lista = js.loads(file.read())
+    file.close()
+
+    for bloque in lista:
+        if cadena == bloque[1]:
+            bloque[1] = cadenaModificcada
+            bloque[3] = GenerarHash(cadenaModificcada)
+            file = open(ruta, "w+")
+            file.write(js.dumps(lista))
+            file.close()
+            return True
+```
+
+Para graficar estos bloques se hace uso de graphviz, con una funcion que genera el dot y luego lo convierte a imagen.
+
+Como ya se menciono los metodos solo se llaman en la libreria principal, importando BlockChain con el nombre BC, los metodos se ven de la siguiente manera, haciendo las comprobaciones necesarias de existencia de bases de datos y tablas.
+```sh
+def safeModeOn(database: str, table: str) -> int:
+    nombreST = str(database) + '-' + str(table)
+    if not _database(database):
+        return 2
+
+    if not _table(database, table):
+        return 3
+
+    if BC.EsUnaTablaSegura(nombreST, _main_path):
+        return 4
+
+    try:
+        BC.CreateBlockChain(nombreST, _main_path)
+        return 0
+    except:
+        return 1
+```
 
 ## Generador de diagramas de dependencias
 
