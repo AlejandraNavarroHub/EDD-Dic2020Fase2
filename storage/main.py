@@ -507,7 +507,6 @@ def extractTable(database: str, table: str) -> list:
     if bd:
 
         tb = _table(database, table)        
-        encodingold = bd["encoding"]
 
         if tb:
 
@@ -535,16 +534,6 @@ def extractTable(database: str, table: str) -> list:
 
             elif mode == "dict":
                 val = dict.extractTable(database, table)
-
-            for x in val:	
-                i = 0	
-                for y in x:	
-                    if type(y) == str:	
-                        try:	
-                            x[i] = y.decode(encodingold, "strict")	
-                        except: 	
-                            return 1	
-                    i += 1
 
             return val
 
@@ -1013,14 +1002,12 @@ def insert(database: str, table: str, register: list) -> int:
             encoding = bd["encoding"]	
             mode = tb["modo"]	  
 
-            i = 0	
             for y in register:	
                 if type(y) == str:	
                     try:	
-                        register[i] = y.encode(encoding, "strict")	
+                        y.encode(encoding, "strict")	
                     except: 	
-                        return 1	
-                i += 1
+                        return 1
 
             val = -1
 
@@ -1052,9 +1039,6 @@ def insert(database: str, table: str, register: list) -> int:
 
             return val
 
-        # else:
-        #     return -1
-
         else:
             return 3
 
@@ -1081,10 +1065,21 @@ def loadCSV(file: str, database: str, table: str) -> list:
     if bd:
 
         tb = _table(database, table)
+        encoding = bd["encoding"]
 
         if tb:
 
             mode = tb["modo"]
+            try:
+                with open(file, 'r', encoding='utf-8-sig') as leer:
+                    reader = csv.reader(leer, delimiter=',')
+                    for x in reader:
+                        for y in x:
+                            if type(y) == str:
+                                y.encode(encoding, "strict")
+                    leer.close()
+            except:
+                return []
 
             val = -1
 
@@ -1210,6 +1205,13 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
         if tb:
 
             mode = tb["modo"]
+            encoding = bd["encoding"]	
+            for y in register:	
+                if type(y) == str:	
+                    try:	
+                        y.encode(encoding, "strict")	
+                    except: 	
+                        return 1
 
             val = -1
 
@@ -1754,47 +1756,21 @@ def alterDatabaseEncoding(database: str, encoding: str) -> int:
     bd = _database(database)
 
     if bd:
-
-        if bd["encoding"] == encoding or encoding not in ["utf8", "ascii", "iso-8859-1"]:
+        if encoding not in ["utf8", "ascii", "iso-8859-1"]:
             return 3
         else:
-            res = 0
-            aux = {}
-            encodingold = bd["encoding"]
             bd["encoding"] = encoding
             try:
-                table = _database(database)["tablas"]
+                table = bd["tablas"]
                 for t in table:
-                    val = t.extractTable(database, t)['nombre']
-                    aux.update({t['nombre']:val[:]})
-                    truncate(database,t['nombre'])
+                    val = extractTable(database, t['nombre'])
                     if len(val):
                         for x in val:
-                            i = 0
                             for y in x:
                                 if type(y) == str:
-                                    try:
-                                        x[i] = y.decode(encodingold, "strict")
-                                    except: 
-                                        res = 1
-                                        break
-                                i += 1
-                            if res:
-                                break
-                            res = insert(database, t['nombre'], x)
-                            if res:
-                                break
-                        if res:
-                            break        
-                if res:
-                    for t in list(aux.keys()):
-                        truncate(database,t['nombre'])
-                        for x in aux[t]:
-                            insert(database, t['nombre'], x)
-                else:
-                    # Aplicar la serealización
-                    #sr.rollback(_main_path)
-                    return 0
+                                       y.encode(encoding, "strict")
+                                       
+                return 0
             except:
                 return 1
     else:
