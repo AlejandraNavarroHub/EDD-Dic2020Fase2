@@ -40,7 +40,7 @@ obj
 
 ## Alcances del proyecto
 
-Este proyecto es la segunda fase de un proyecto de nombre HashMode, el cual se puede revisar su documentacion [aqui.](https://github.com/tytusdb/tytus/blob/main/storage/team15/docs/Manual%20tecnico.md) Como se puede observar en la primera fase de este proyecto se desarrollo la estuctura para el almacenamiento interno de un DBMS, buscando crear las funciones necesarias para poder crear un administrador de bases de datos funcional y eficaz, en dicha fase la estructura utilizada fue una tabla hash, por las ventajas ahi descritas. Sin embargo, ese proyecto solo fue una de las partes que constituiran esta segunda fase, el proyecto fue construido en conjunto a otros compañeros del curso Estructuras de Datos, el objetivo de otros grupos era la construccion del mismo administrador pero con estructuras de datos distintas, arbol b, arbol b+, AVL, json, diccionarios e isam.
+Este proyecto es la segunda fase de un proyecto de nombre HashMode, el cual se puede revisar su documentacion [aqui](https://github.com/tytusdb/tytus/blob/main/storage/team15/docs/Manual%20tecnico.md). Como se puede observar en la primera fase de este proyecto se desarrollo la estuctura para el almacenamiento interno de un DBMS, buscando crear las funciones necesarias para poder crear un administrador de bases de datos funcional y eficaz, en dicha fase la estructura utilizada fue una tabla hash, por las ventajas ahi descritas. Sin embargo, ese proyecto solo fue una de las partes que constituiran esta segunda fase, el proyecto fue construido en conjunto a otros compañeros del curso Estructuras de Datos, el objetivo de otros grupos era la construccion del mismo administrador pero con estructuras de datos distintas, arbol b, arbol b+, AVL, json, diccionarios e isam.
 
 Esta segunda fase consiste en la unificacion de todos los modos de almacenamiento en una sola libreria universal, la cual tendra las mismas funciones que cada una de las librerias individuales y ciertos agregados extra, esta libreria hace posible la eleccion del modo de almacenamineto a utilizar en la creacion de las bases de datos, asi como tambien permite cambiar de modo una tabla en especifico, ademas de esta posibilidad, la libreria permite tambien la eleccion del encoding a utilizar, teniendo entre sus opciones ascii, iso-8859-1 y utf-8.
 
@@ -66,7 +66,18 @@ cuerpo
 
 ## Administrador del modo de almacenamiento
 
-cuerpo
+Debido a que se unificaron 7 modos de almacenar registros con distintas estructuras de datos se realizaron dos métodos que cambiaran dicho modo a voluntad, tanto para una base de datos como para una tabla específica.
+
+Al llamar al método alterDatabaseMode con los parámetros database y mode, se le indica a la librería que debe cambiar dicha base de datos a un nuevo modo. 
+esto incluye todas las tablas dentro de la base de datos especificada.
+
+Para cambiar el modo de almacenamiento de una base de datos se valida que la base de datos exista y que el modo especificado sea válido (que exista y que no sea el mismo que el de la base de datos). Luego se almacenan en una variable las tablas que esta contiene, llamando al método extractTable con el nombre de la tabla. Al almacenar el contenido se procede a crear una base de datos temporal (de mismo nombre que la base de datos actual con el sufijo '_temp') en el nuevo modo, que pueda almacenar la tabla con el nuevo modo, para luego crear las tablas e insertarles el contenido previamente almacenado. Si todo este procedimiento es exitoso entonces se elimina la anterior base de datos y se renombra la base de datos temporal al nombre original de la base de datos.
+
+Al llamar al método alterTableMode con los parámetros database, table y mode, se le indica a la librería que debe cambiar una tabla *table* dentro de *database* a un nuevo modo *mode*.
+
+Para cambiar el modo de almacenamiento de una tabla se valida que la base de datos exista, que la tabla exista y que el modo especificado sea válido (que exista y que no sea el mismo que el de la tabla). Luego se almacenan en una variable el contenido de la tabla, llamando al método extractTable con el nombre de la tabla. Al almacenar el contenido se procede a crear una base de datos temporal en el nuevo modo, que pueda almacenar la tabla con el nuevo modo, para luego crear la tabla e insertarl el contenido previamente almacenado. Si todo este procedimiento es exitoso entonces se elimina la anterior tabla.
+
+Todos los cambios se ven almacenados en los directorios dentro de la carpeta *data*.
 
 ## Administrador de índices
 
