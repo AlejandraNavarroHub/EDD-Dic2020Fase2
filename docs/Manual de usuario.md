@@ -81,8 +81,10 @@ Conviene consultar el DOCSTRING de la función de interes, así como imprimir su
 ![DOCSTRING](img/docstring.png "DOCSTRING de una función")
 
 ```sh
-creation = createDatabase("database", "hash", "utf8")
-encoding = alterDatabaseEncoding("database", "utf8")
+from storage import TytusStorage as t
+
+creation = t.createDatabase("database", "hash", "utf8")
+encoding = t.alterDatabaseEncoding("database", "utf8")
 print(creation, ',', encoding)
 ```
 
@@ -108,10 +110,27 @@ explicacion
 
 ## Uso del administrador del modo de almacenamiento
 
-Las siguientes funciones se enfocan en 
+Al crear una base de datos se debe especificar el modo en que se almacenarán los datos en las tablas. Al crear una tabla el modo de esta será el de la base de datos en que se cree. Sin embargo, es posible cambiar este modo de almacenamiento tanto para una tabla concreta, como para una base de datos completa, sin pérdida de datos.
 
-### funci(param, param) 
-explicacion
+### alterDatabaseMode(database, mode)
+Cambia el modo de almacenamiento de una base de datos, reestructurando los datos de sus tablas.
+Parametros:
+- database: Es la base de datos cuyo modo que se desea cambiar
+- mode: Es el nuevo modo de almacenamiento
+
+| Valor de retorno | Definición |
+| ------ | ------ |
+| 0 | Operación exitosa |
+| 1 | Error en la operación |
+| 2 | Base de datos inexistente |
+| 3 | Modo no válido |
+
+### alterTableMode(database, mode)
+Cambia el modo de almacenamiento de una tabla, reestructurando sus registros.
+Parametros:
+- database: Es la base de datos que contiene la tabla
+- database: Es la tabla cuyo modo se desea cambiar
+- mode: Es el nuevo modo de almacenamiento
 
 | Valor de retorno | Definición |
 | ------ | ------ |
@@ -119,14 +138,39 @@ explicacion
 | 1 | Error en la operación |
 | 2 | Base de datos inexistente |
 | 3 | Tabla inexistente |
-
+| 4 | Modo no válido |
 
 ## Uso del administrador de índices
 
-Las siguientes funciones se enfocan en 
+Se pueden agregar 3 tipos de índices a una base de datos, por ello hay 3 funciones para agregarlos, así como 3 funciones para eliminarios.
 
-### funci(param, param) 
-explicacion
+### alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef)
+Agrega una llave foránea a una o más columnas de una tabla, que hace referencia a la misma cantidad de columnas de otra tabla.
+
+Parametros:
+- database: base de datos que contiene la tabla
+- table: tabla donde se desea agregar la llave foránea
+- indexName: nombre de la llave foránea
+- columns: columnas de la tabla donde se desa agregar la llave foránea
+- tableRef: tabla a la que la llave foránea hace referencia
+- columnsRef: columnas de la tabla a la que la llave foránea hace referencia
+
+| Valor de retorno | Definición |
+| ------ | ------ |
+| 0 | Operación exitosa |
+| 1 | Error en la operación |
+| 2 | Base de datos inexistente |
+| 3 | Tabla o tabla de referencia inexistente |
+| 4 | El número de columnas no coincide |
+| 5 | No se cumple la integridad referencial |
+
+### alterTableDropFK(database, table, indexName)
+Elimina una llave foránea previamente creada.
+
+Parametros:
+- database: base de datos que contiene la tabla
+- table: tabla que contiene la llave foránea
+- indexName: nombre de la llave foránea
 
 | Valor de retorno | Definición |
 | ------ | ------ |
@@ -134,7 +178,72 @@ explicacion
 | 1 | Error en la operación |
 | 2 | Base de datos inexistente |
 | 3 | Tabla inexistente |
+| 4 | Llave foránea inexistente |
 
+### alterTableAddUnique(database, table, indexName, columns)
+Agrega un índice único a una o más columnas de una tabla, para facilitar la búsqueda de registros en esta. No se deben duplicar valores de las columnas especificadas.
+
+Parametros:
+- database: base de datos que contiene la tabla
+- table: tabla donde se desea agregar el índice único
+- indexName: nombre del índice único
+- columns: columnas de la tabla donde se desa agregar el índice único
+
+| Valor de retorno | Definición |
+| ------ | ------ |
+| 0 | Operación exitosa |
+| 1 | Error en la operación |
+| 2 | Base de datos inexistente |
+| 3 | Tabla o tabla de referencia inexistente |
+| 4 | Valor duplicado |
+
+### alterTableDropUnique(database, table, indexName)
+Elimina un índice único previamente creado.
+
+Parametros:
+- database: base de datos que contiene la tabla
+- table: tabla que contiene el índice único
+- indexName: nombre del índice único
+
+| Valor de retorno | Definición |
+| ------ | ------ |
+| 0 | Operación exitosa |
+| 1 | Error en la operación |
+| 2 | Base de datos inexistente |
+| 3 | Tabla inexistente |
+| 4 | Índice único inexistente |
+
+### alterTableAddIndex(database, table, indexName, columns)
+Agrega un índice único a una o más columnas de una tabla, para facilitar la búsqueda de registros en esta.
+
+Parametros:
+- database: base de datos que contiene la tabla
+- table: tabla donde se desea agregar el índice
+- indexName: nombre del índice
+- columns: columnas de la tabla donde se desa agregar el índice
+
+| Valor de retorno | Definición |
+| ------ | ------ |
+| 0 | Operación exitosa |
+| 1 | Error en la operación |
+| 2 | Base de datos inexistente |
+| 3 | Tabla o tabla de referencia inexistente |
+
+### alterTableDropIndex(database, table, indexName)
+Elimina un índice previamente creado.
+
+Parametros:
+- database: base de datos que contiene la tabla
+- table: tabla que contiene el índice
+- indexName: nombre del índice
+
+| Valor de retorno | Definición |
+| ------ | ------ |
+| 0 | Operación exitosa |
+| 1 | Error en la operación |
+| 2 | Base de datos inexistente |
+| 3 | Tabla inexistente |
+| 4 | Índice inexistente |
 
 ## Uso del administrador de codificación
 
@@ -149,7 +258,6 @@ explicacion
 | 1 | Error en la operación |
 | 2 | Base de datos inexistente |
 | 3 | Tabla inexistente |
-
 
 ## Uso del generador de checksum
 
@@ -186,14 +294,15 @@ El administrador de seguridad hace uso de la libreria cryptography para su funci
 ```sh
 pip install cryptography
 ```
-Si desea obtener mas informacion sobre esta libreria, puede consultar su documentacion [aqui-](https://pypi.org/project/cryptography/ "Documentacion Cryptography")
+Si desea obtener mas informacion sobre esta libreria, puede consultar su documentacion [aqui](https://pypi.org/project/cryptography/ "Documentacion Cryptography").
 
 Las siguientes funciones se enfocan en efectos de seguridad bajo conceptos de criptografia y blockchain, se trata de dos secciones, con los nombres de los conceptos antes mencionados, cada una de las secciones cuenta cada una con dos funciones, las cuales se detallaran a continucaion, sin embargo se puede mencionar como sun funcion principal la encriptacion y desncriptacion de cadenas de texto, y el manejo de tablas seguras, las cuales proveen al usuario una forma de almacenar sus datos y verificar que estos sigan intactos.
 
-### Funciones de Criptografia
+Las funciones de criptografía son:
 
 ### encrypt(backup, password) 
 La funcion encrypt es la encargada de encriptar un texto, con la contraseña que se le pasa como parametro, dicha funcion devuelve el texto encriptado como una cadena de texto (string).
+
 Parametros:
 - backup: Es el string que se desea encriptar
 - password: Cadena que se usara para la encriptacion del texto, es importante si luego se desea desencriptar el texto, pues para lograrlo sera necesaria la misma contraseña
@@ -201,10 +310,11 @@ Parametros:
 | Valor de retorno | Definición |
 | ------ | ------ |
 | Cadena | Cadena encriptada |
-| 1 | Error en la operación |
+| None | Error en la operación |
 
 ### decrypt(cipherbackup, password) 
 La funcion decrypt es la encargada de desencriptar la cadena que se le haya pasado, con la contraseña que se le pasa como parametro, dicha funcion devuelve el texto desencriptado como una cadena de texto (string).
+
 Parametros:
 - cipherbackup: Es el string que se desea desencriptar
 - password: Cadena que se usara para la desencriptacion del texto, si no es la correcta el metodo fallara
@@ -212,12 +322,13 @@ Parametros:
 | Valor de retorno | Definición |
 | ------ | ------ |
 | Cadena | Cadena desencriptada |
-| 1 | Error en la operación |
+| None | Error en la operación |
 
-### Funciones de BlockChain
+Las funciones de blockchain son:
 
 ### SafeModeOn(database, table) 
 Activa el modo seguro para una tabla en especifico, a partir de la activacion del modo seguro cualquier insert a la tabla sera guardado utilizando la tecnica BlockChain, y cualquier update de los datos insertados dañara la consistencia de los datos.
+
 Parametros:
 - database: Nombre de la base de datos a la que pertenece la tabla que estara en modo seguro
 - table: Nombre de la tabla a la cual sera activado el modo seguro 
@@ -232,6 +343,7 @@ Parametros:
 
 ### SafeModeOff(database, table) 
 Desactiva el modo seguro para una tabla en especifico, los inserts y updates volveran a actuar con normalidad, y el blockchain anterior sera eliminado.
+
 Parametros:
 - database: Nombre de la base de datos a la que pertenece la tabla 
 - table: Nombre de la tabla a la cual se le desactivara el modo seguro 
@@ -246,13 +358,15 @@ Parametros:
 
 ### GraphSafeTable(database, table) 
 Grafica el los bloques de BlockChain de una tabla en modo seguro.
+
 Parametros:
 - database: Nombre de la base de datos a la que pertenece la tabla 
-- table: Nombre de la tabla a la cual se desea graficar }
+- table: Nombre de la tabla a la cual se desea graficar
 
 | Valor de retorno | Definición |
 | ------ | ------ |
-| Imagen | Grafo de los bloques |
+| str | Directorio del grafo |
+| None | Error en la operación |
 
 
 ## Uso del generador de diagramas de dependencias
