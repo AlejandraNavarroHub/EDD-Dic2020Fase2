@@ -81,8 +81,10 @@ def extractTable(database: str, table: str):
         if not existDB(database): return None
         if not existTable(database, table): return None
         return extraerRegistros(database, table)
-    except:
-        return 1
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        return 
     
 
 def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any):

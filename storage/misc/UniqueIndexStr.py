@@ -109,10 +109,10 @@ class UniqueIndexStr:
 
         try:
                             
-            registros = self.extractTable(self.database, self.table)
+            registros = self.extractTable()
             self.modo = mode
 
-            self.dropTable(self.database, self.table)
+            self.dropTable()
             self.createTable()
 
             for registro in registros:
