@@ -17,7 +17,6 @@ TytusStorage está dotado de funciones de enlazamiento de datos, seguridad, graf
 
 - [Introduccion](#introduccion)
 - [Glosario](#glosario)
-- [FAQ](#faq)
 - [Uso de la librería](#uso-de-la-librería)
 - [Uso del almacenamiento](#uso-del-almacenamiento)
 - [Uso del administrador del modo de almacenamiento](#uso-del-administrador-del-modo-de-almacenamiento)
@@ -40,21 +39,18 @@ Sin embargo la libreria no esta destinada solamente al almacenamiento, tambien p
 | ----- | ----- |
 | Archivo CSV | Los archivos CSV son un tipo de documento en formato abierto sencillo para representar datos en forma de tabla, en las que las columnas se separan por comas y las filas por saltos de línea. |
 | Base de datos | Una base de datos es un conjunto de datos pertenecientes a un mismo contexto y almacenados sistemáticamente para su posterior uso. Es capaz de almacenar gran cantidad de datos, relacionados y estructurados, que pueden ser consultados rápidamente de acuerdo con las características selectivas que se deseen. |
+| Checksum | Un checksum, o suma de comprobación, es el resultado de la ejecución de un algoritmo dentro de un archivo único, función denominada Cryptographic hash function. Comparar el checksum que generas desde tu versión del archivo, junto al provisto por la fuente del mismo, representa una ayuda para asegurarte una copia genuina y libre de errores. |
 | Eficiencia | Proporcionar un desempeño apropiado, en relación con la cantidad de recurso utilizado, bajo condiciones establecidas en determinado momento del tiempo. |
 | Interfaz | La interfaz es el medio donde el usuario puede comunicarse con una maquina, equipo o dispositivo, y comprender los puntos de contacto entre el usuario y el equipo.  |
 | Llave Foranea | Una llave foránea o llave ajena es una limitación referencial entre dos tablas e identifica una columna o grupo de columnas en una tabla que se refiere a una columna o grupo de columnas en otra tabla. |
 | Llave Primaria | Una llave primaria es un campo o una combinacion de campos que identifica de forma unica a cada fila de una tabla |
+| Llave unica | La clave única o UNIQUE hace que en la columna que la posee no pueda tener dos datos iguales. Es decir en cada registro, el campo marcado con UNIQUE debe tener un dato diferente. Esto lo convierte en un identificador del registro, ya que no puede haber dos registros que contengan el mismo dato en esa columna. |
 | Parametro | Un parámetro, generalmente, es cualquier característica que pueda ayudar a definir o clasificar un sistema particular. |
 | Python | Python es un lenguaje de programación interpretado cuya filosofía hace hincapié en la legibilidad de su código. Se trata de un lenguaje de programación multiparadigma, ya que soporta orientación a objetos, programación imperativa y, en menor medida, programación funcional. |
 | Registro | Un registro representa un objeto único de datos implícitamente estructurados en una tabla. |
 | Tabla Hash | Una tabla hash es una estructura asosiada a llaves o claves con valores. La operación principal que soporta de manera eficiente es la búsqueda: permite el acceso a los elementos almacenados a partir de una clave generada. |
 | Tupla | Una tupla es una lista ordenada finata de elementos (componentes).|
 
-## FAQ
-
-1. ¿PREGUNTA?
-
-> **Respuesta:** RESPUESTA.
 
 
 ## Uso de la librería
@@ -261,17 +257,30 @@ explicacion
 
 ## Uso del generador de checksum
 
-Las siguientes funciones se enfocan en 
+Las siguientes funciones se enfocan en obtener valores hash de diferentes bases de datos o tablas especificas mediante los algoritmos de:
+- MD5
+- SHA256
 
-### funci(param, param) 
-explicacion
+### checksumDatabase(database, mode)
+Obtiene el valor hash de toda la base de datos seleccionada.
+- database: Nombre de la base de datos a la cual se le calculara su valor hash.
+- mode: el nombre del algoritmo al cual se le calculara el valor hash.
 
 | Valor de retorno | Definición |
 | ------ | ------ |
-| 0 | Operación exitosa |
-| 1 | Error en la operación |
-| 2 | Base de datos inexistente |
-| 3 | Tabla inexistente |
+| Hash | Valor hash calculado |
+| None | Error en la operación |
+
+### checksumTable(database, table, mode)
+Obtiene el valor hash de una sola tabla almacenada en una base de datos.
+- database: Nombre de la base de datos donde se encuentra la tabla.
+- table: Nombre de la tabla a la cual se le calculara su valor hash
+- mode: el nombre del algoritmo al cual se le calculara el valor hash.
+
+| Valor de retorno | Definición |
+| ------ | ------ |
+| Hash | Valor hash calculado |
+| None | Error en la operación |
 
 
 ## Uso del administrador de compresión de datos
@@ -371,29 +380,101 @@ Parametros:
 
 ## Uso del generador de diagramas de dependencias
 
-Las siguientes funciones se enfocan en 
+Las siguientes funciones se enfocan en la creacion de diagramas de dependencia mediante el uso de GraphViz para mostrar las diferentes relaciones entre llaves primarias, foraneas y unicas.
 
-### funci(param, param) 
-explicacion
+### graphDSD(database)
+Genera un diagrama que muestra las relaciones de tablas mediante llaves foraneas.
+- database: Nombre de la base de datos.
 
 | Valor de retorno | Definición |
 | ------ | ------ |
-| 0 | Operación exitosa |
-| 1 | Error en la operación |
-| 2 | Base de datos inexistente |
-| 3 | Tabla inexistente |
+| ruta | directorio donde se guardo la imagen generada |
+| None | Error en la operación |
+
+### graphDF(database, table)
+Genera un diagrama que muestra las relaciones de los atributos que tienen una tabla mediante llaves primarias o unicas.
+- database: Nombre de la base de datos.
+- table: Nombre de la tabla donde almacena las llaves primarias o unicas.
+
+| Valor de retorno | Definición |
+| ------ | ------ |
+| ruta | directorio donde se guardo la imagen generada |
+| None | Error en la operación |
 
 
 ## Uso del reportador gráfico
 
-Las siguientes funciones se enfocan en 
+Para acceder al reporte grafico desde un main, se importa de la siguiente manera.
+```sh
+import storage.interfaz as m
+m.Mostrar()
+```
+Las siguientes son las funciones del reportador gráfico, que es capaz de manipular bases de datos, tablas y registros mediante una interfaz.
 
-### funci(param, param) 
-explicacion
+#### Ventana Base de Datos
+Ventana donde se podran visualizar todas las gestiones sobre bases de datos.
 
-| Valor de retorno | Definición |
-| ------ | ------ |
-| 0 | Operación exitosa |
-| 1 | Error en la operación |
-| 2 | Base de datos inexistente |
-| 3 | Tabla inexistente |
+1. Create a New Database: Se mostrara una ventana emergente que solicitara:
+-- Nombre de la base de datos.
+-- Estructura donde se almacenaran los registros de la base de datos.
+-- Codificacion que utlizara la base de datos.
+El sistema no permitira dejar el campo en blanco o escribir el nombre de una base de datos ya exsiten.
+2. Upload databases: Se mostrara una ventana emergente que solicitara la direccion url de un archivo (csv).
+3. Lista de Bases de Datos: Seccion donde se mostraran todas las bases de datos registradas o cargadas.
+4. Gestiones de la base de datos: Al seleccioanr una base de datos desplegada en la lista se desplegara una caja de detalles y opciones sobre la propia base de datos.
+5. Show Tables: Redirije a una nueva ventana donde se gestionaran todas la tablas que puede poseer la base de datos.
+6. Rename Database: Permite cambiarle el nombre a una base de datos ya existenete. Se verificara que el nuevo nombre no sea un nombre ya existente.
+7. Drop Database: Permite eliminar la base de datos seleccionada.
+8. Grafico de DSD: Genera una ventana donde se visualiza un diagrama de dependencia entre las tablas mediante llaves foraneas.
+9. Update: Boton que actualiza la pagina.
+
+![Ventana base de datos](img/database_window.png)
+
+#### Ventana Tablas
+Ventana donde se podran visualizar todas las gestiones sobre tablas.
+
+1. Create a new table: Se mostrara una ventana emergente donde se solicitara el nombre y las columnas que llevara la tabla. Se solicitara que el nombre de la tabla ingresado no sea de una ya existente.
+2. Update: Boton que actualiza la pagina.
+3. Lista de tablas: Seccion donde se mostraran todas las tablas registradas o cargadas que almacena la base de datos.
+4. Show tuples: Redirije a una nueva ventana donde se gestionaran todos los registros que puede poseer la tabla.
+5. Gestiones de la tabla: Al seleccioanr una tabla desplegada en la lista se desplegara una caja de detalles y opciones sobre la propia tabla.
+6. Alter column: Agrega una columna a la tabla.
+7. Alter add PK: Define las llaves primarias que llevara la tabla solicitndo las columnas donde desee definirlas.
+8. Extract range table: Solicita dos datos a ingresar (lower and upper) y luego la columna donde se desea posicionar los datos.
+9. Rename table: Permite renombrar la tabla solicitando un nombre que no sea de una ya existente.
+10. Extract table: Despliga una ventana emergente con todos los datos que posee la tabla.
+11. Alter drop PK: Elimina la llave primaria de la tabla seleccionada
+12. Drop column: Solicita el numero de columna para ser eliminada.
+13. Drop table: Elimina la tabla seleccionada.
+14. Grafico de DF: Genera una ventana donde se visualiza un diagrama de dependencia entre los atributos de una tabla mediante llaves primarias o unicas.
+
+![Ventana tablas](img/tables_window.png)
+
+#### Ventana Registros
+Ventana donde se podran visualizar todas las gestiones sobre los registros de las tablas.
+
+1. Insert a new tuple: Se mostrara una ventana emergente donde se solicitara ingresar los datos separados por comas para identificar que el numero de datos corresponda al numero de columnas que posee la tabla.
+```sh
+Ejemplo: dato1, dato2, dato3, dato4
+```
+2. Update: Boton que actualiza la pagina.
+3. Lista de tuplas: Seccion donde se mostraran todas las tuplas registradas en la tabla mostrando la llave primaria de referencia.
+4. Extract row: Despliega una ventana emergente donde se muestran los datos de la tupla seleccionada
+5. Truncate: Elimina todos los registros de la tabla.
+6. Update row: Solicitara los datos primeramente del nuemero de columna seguido del dato a cambio y estos separados por una coma y para ingresar mas de un dato seprar estos por un ponto y coma.
+```sh
+Ejemplo: 0 , dato1 ; 1 , dato2 ; 2 , dato3 ; 3 , dato 4
+```
+7. Delete: Elimina la tupla seleccioanda.
+8. Grafico de tuplas: Scion donde se muestra una imagen de la estructura donde se almacenan todos los registros de la tabla.
+9. Blockchain: Redirige a una ventana donde se mostraran todas las gestiones que tiene la seguridad de datos.
+
+![Ventana tuplas](img/tuples_window.png)
+
+#### Ventana Blockchain
+1. SafeModeOn: Activa el modo seguro de los registros.
+2. SafeMOodeOff: Desactiva el modo seguro de los registros.
+3. Show Blockchain: Genera un diagrama del blockchain.
+4. Grafica de Blockchain: Seccion donde se muestra el driagrama de blockchain.
+
+![Ventana blockchain](img/blockchain_window.png)
