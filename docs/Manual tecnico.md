@@ -89,7 +89,26 @@ cuerpo
 
 ## Generador de checksum
 
-cuerpo
+Metodo que recibe una cadenas de texto y retorna un valor hash conforme lo hace SQL, con el uso de la siguiente libreria la cual es proveniente de Pyhton y no necesita de una instalacion o configuracion externa:
+```sh
+import hashlib
+```
+La libreria se utilizo para calcular los valores hash con los algoritmos de MD5 Y SHA256. 
+#### Obtener el valor hash
+Este metodo genera un diggest a partir del contenido de la base de datos incluyendo sus tablas.
+Para obtener el valor hash con los algoritmos se obtiene de la siguiente forma:
+
+```sh
+Con MD5:
+    hashlib.md5("text".encode("encoding"))
+Con SHA256:
+    hashlib.sha256("text".encode("encoding"))
+```
+Donde "text" es la cadena a convertir (todas las tuplas de bases de datos o tablas), "encording" para la codificacion que se esta utilizando. El valor hash que se obtiene tiene que retornarse de forma hexadecimal para eso se utiliza:
+```sh
+.hexdigest()
+```
+
 
 ## Administrador de compresión de datos
 
@@ -265,11 +284,45 @@ def safeModeOn(database: str, table: str) -> int:
 
 ## Generador de diagramas de dependencias
 
-cuerpo
+Diagramas de estructuras de datos basado en GraphViz se generaron diagramas de dependecias para realaciones entre llaves foraneas de tablas y relaciones de llaves primarias y llaves unicas.
+#### Relaciones entre llaves foraneas
+Genera un diagrama que muestra las relaciones que tiene los atributos de las tablas mediante un diccionario de tablas se encuentra cuales tienen llaves foraneas a que tablas hacen referencia.
+
+### Relacion entre llaves primarias y unicas 
+Genera un diagrama que muestra las relaciones que tiene los atributos de una tabla formando dependencias de las llaves unicas y primarias hacia le resto de atributos.
+
 
 ## Reportador gráfico
+En la creacion del reporte grafico se inclino en la creacion de una interfaz interactiva con el usuario para gestionar todo el funcionamiento del programa. Para ello se declino a la utilizacion de la libreia Tkinter la cual proporciono un conjunto de herramientas para la administracion de ventanas.
+```sh
+import tkinter
+```
+Tkinter es un conjunto de funciones que envuelven las implementaciones widgets Tk como clases de Python y tiene ventajas como su velocidad que generalmente se suministra de forma nativa con Python.
 
-cuerpo
+#### Widgets
+Utilizando los widgets Tk y Toplevel donde se proporciona un lienzo (ventanas) y con un conjunto adicional de widgets se utilizaron para darle un excelente diseño en diferentes areas de las ventanas, algunos de estos fueron.
+```sh
+Frame: Espacio donde se almacenan un definido conjunto de widgets.
+Button: Creacion de botones.
+Label: Espacios de textos definidos.
+PhotoImage: Proyeccion de imagenes buscadas en un directorio actual.
+Entry: Entradas de texto por parte del usuario
+```
+#### Clases y atributos
+###### Window Databases
+Ventana que administra todas las gestiones de las bases de datos, utilizando todos los recursos disponibles que ofrece la libreria se logro un diseño sencillo y funcional.
+
+###### Window Tables
+Ventana que permite gestionar todas las funcionalidades sobre las tablas que puede almacenar una base de datos, su funcionalidad proviene de la clase window databases quien acomoda las gestiones de las tablas dependiendo de la base seleccionada previamente.
+
+###### Window Tuples
+Ventana al igual que las otras permite el gestionamiento de los registros almacenados en una tabla, con uso de metodos propios en el sistema se logra adaptar la clase dependiendo de la base de datos y tabla previamente seleccionadas, ademas dando una visualizacion de la estructura utilizada.
+
+###### Window Blockchain
+Ventana que permite la gestiones que tiene el blockchain utililizando la base de datos y tabla donde se accedio. Las opciones para gestionar son las siguientes:
+- SafeModeOn: Activar el modo seguro.
+- SafeModeOff: Desactivar el modo seguro.
+- GraphSafeTable: Visualizar un grafico del blockchain.
 
 ## Diagrama de clases
 
