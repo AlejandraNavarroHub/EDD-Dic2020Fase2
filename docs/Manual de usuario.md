@@ -243,17 +243,20 @@ Parametros:
 
 ## Uso del administrador de codificación
 
-Las siguientes funciones se enfocan en 
+Las siguiente función se enfoca en codificar una base de datos al encoding indicado por el usuario, siendo los posibles *ASCII*, *ISO-8859-1* o *UTF8*. Se puede codificar una base de datos que antes fue codificada a otro tipo.
 
-### funci(param, param) 
-explicacion
+### alterDatabaseEncoding(database, encoding) 
+Con el encoding solicitado verifica cada una de las tuplas de la base de datos especifica, si es cadena de texto este procede a verificar la codificación. 
+
+- database: Nombre de la base de datos a la cual se le codificarán las tuplas de sus tablas.
+- encoding: Tipo de encoding a aplicar.
 
 | Valor de retorno | Definición |
 | ------ | ------ |
 | 0 | Operación exitosa |
 | 1 | Error en la operación |
 | 2 | Base de datos inexistente |
-| 3 | Tabla inexistente |
+| 3 | Encoding no válido |
 
 ## Uso del generador de checksum
 
@@ -283,19 +286,69 @@ Obtiene el valor hash de una sola tabla almacenada en una base de datos.
 | None | Error en la operación |
 
 
-## Uso del administrador de compresión de datos
+# Uso del administrador de compresión de datos
 
-Las siguientes funciones se enfocan en 
+Las siguientes funciones se enfocan en comprimir o descomprimir una base de datos completa o una única tabla espcificada. Para esto se hace uso de la librería zlib.
 
-### funci(param, param) 
-explicacion
+```sh
+import zlib
+```
+
+### def alterDatabaseCompress(database, level)
+
+El método se encarga de comprimir cada una de las tablas que contenga la base de datos especificada. Los niveles permitidos son números del 1 al 9.
+
+- database: Nombre de la base de datos que se comprimirá.
+- level: Nivel de compresión.
 
 | Valor de retorno | Definición |
 | ------ | ------ |
 | 0 | Operación exitosa |
 | 1 | Error en la operación |
 | 2 | Base de datos inexistente |
-| 3 | Tabla inexistente |
+| 3 | Nivel de compresión no válido |
+
+### def alterDatabaseDecompress(database)
+El método se encarga de descomprimir cada una de las tablas que contenga la base de datos especificada solo si ha sido comprimida con anterioridad.
+
+- database: Nombre de la base de datos que se descomprimirá.
+
+| Valor de retorno | Definición |
+| ------ | ------ |
+| 0 | Operación exitosa |
+| 1 | Error en la operación |
+| 2 | Base de datos inexistente |
+| 3 | No existe compresión |
+
+### def alterTableCompress(database, table, level)
+El método se encarga de comprimir una tabla especifica de la base de datos especificada. Los niveles permitidos son números del 1 al 9.estos por medio de los valores de retorno.
+
+- database: Nombre de la base de datos a la cual pertenece la tabla.
+- table: Nombre de la tabla que se comprimirá.
+- level: Nivel de compresión.
+
+| Valor de retorno | Definición |
+| ------ | ------ |
+| 0 | Operación exitosa |
+| 1 | Error en la operación |
+| 2 | Base de datos inexistente |
+| 3 | No existe la tabla |
+| 4 | Nivel de compresión no válido |
+
+### def alterTableDecompress(database, table)
+
+El método se encarga de descomprimir una tabla especifica de la base de datos especificad solo si ha sido comprimida con anterioridad.
+
+- database: Nombre de la base de datos que se descomprimirá.
+- table: Nombre de la tabla que se descomprimirá.
+
+| Valor de retorno | Definición |
+| ------ | ------ |
+| 0 | Operación exitosa |
+| 1 | Error en la operación |
+| 2 | Base de datos inexistente |
+| 3 | No existe compresión |
+
 
 
 ## Uso del administrador de seguridad
