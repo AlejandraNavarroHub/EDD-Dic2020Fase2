@@ -50,19 +50,37 @@ En caso del envio de datos, se provee de una funcion de cheksum, la cual permite
 
 ## Requerimentos funcionales
 
-- req
-- req
-- req
+- Los nombres de base de datos deben respetar las reglas de nombrado.
+- Los nombres de tablas deben respetar las reglas de nombrado.
+- Los datos ingresados deben cumplir con la codificación de la base de datos.
+- Para crear una base de datos debe enviar un nombre, el cual no debe existir ya almacenado.
+- Para crear una tabla debe enviar el nombre de la base de datos, nombre de la tabla y número de columnas, dicho nombre no debe existir ya almacenado.
+- La interfaz gráfica es un componente que aprovecha la librería, para su uso se deberá llamar de forma independiente a TytusStorage.
+- Debe tener graphviz para poder observar la estructura de cada almacenamiento de forma grafica por medio de la interfaz gráfica.
 
 ## Atributos del sistema
 
-- at
-- at
-- at
+- Todas las estructuras proveerán un alojamiento seguro y eficiente.
+- TytusStorage es una librería propia para que sea más fácil de implementar.
+- Las funciones existentes retornaran valores numéricos para informar el estado de la operación.
+- Los valores de retorno se podrán consultar en el docstring de TytusStorage
+- Las estructuras serán capaces de evitar la duplicidad de datos.
+- Brindará una interfaz gráfica para visualizar el funcionamiento interno de las estructuras, entre otras cosas.
+- Serealizará los objetos creados para evitar perdidas de datos.
+- La librería implementa métodos de serealización que ayuda a la eficiencia y fluidez del sistema.
+- Proporcionará métodos de detección de cambios, en aras de mantener la información segura.
+- Proporcionará maneras eficaces de reducir el tamaño de la información.
+- TytusStorage podrá cambiar entre métodos sin pérdida de datos.
 
 ## Administrador de almacenamiento
 
-cuerpo
+El funcionamiento del administrador de almacenamiento fue detallado en el [manual técnico](https://github.com/tytusdb/tytus/blob/main/storage/team15/docs/Manual%20tecnico.md "Fase 1") de la fase 1 del proyecto.
+
+Además, se crea una estructura auxiliar que consiste en una lista de bases de datos (diccionarios), que además de almacenar los metadatos de las bases de datos almacenadas, contiene una lista de tablas (diccionarios). Dichas tablas contienen los metadatos de las tablas almacenadas, y 3 estructuras para almacenar índices.
+
+![AUXILIAR](img/auxiliar_str.png "Estructura auxiliar")
+
+La estructura se mantiene actualizada localmente en el archivo *data/data*, haciendo uso de la archivo *serealizar.py*.
 
 ## Administrador del modo de almacenamiento
 
@@ -81,7 +99,47 @@ Todos los cambios se ven almacenados en los directorios dentro de la carpeta *da
 
 ## Administrador de índices
 
-cuerpo
+Cuando se crea una tabla con el método createTable automáticamente se crean 3 estructuras adicionales:
+
+- Estructura de llaves foráneas
+- Estructura de índices únicos
+- Estructura de índices
+
+Cuyo modo de estructuración corresponde al modo de la tabla. En dichas estructuras se almacenan los índices correspondientes, siendo el nombre del índice la llave primaria de dicha estructura. Dicho modo de almacenamiento cambia cuando el modo de almacenamiento de la tabla cambia.
+
+Las clases de las estructuras se encuentran en sus propios archivos:
+
+- ForeignKeyStr
+- UniqueIndexStr
+- IndexStr
+
+Al almacenar un objeto de dichas clases en una tabla se crea en su interior una estructura del modo especificado, aprovechando los modos que estos contienen (insert, delete, extractRow, etc...)
+
+Los objetos creados con estas clases se almacenan en el archivo *data/data*, serializando tras cada cambio pertinente a estos objetos.
+
+### alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef)
+
+En este método se valida la existencia de la base de datos *database*, de las tablas *table* y *tableRef*, y de la igualdad del número de columnas. Luego se inserta un registro en la estructura mediante el método insert de la estructura de llaves foráneas, que llama al método insert del modo de almacenamiento que este contiene.
+
+### alterTableDropFK(database, table, indexName)
+
+En este método se valida la existencia de la base de datos *database*, de la tabla *table*, para luego llamar al método delete de la estructura de llaves foráneas, que llama al método delete del modo de almacenamiento correspondiente, para eliminar el registro de la llave foránea (si existe).
+
+### alterTableAddUnique(database, table, indexName, columns)
+
+En este método se valida la existencia de la base de datos *database*, de las tablas *table* y *tableRef*, además de la unicidad de datos de las columnas *columns* especificadas, es decir, que no se repitan valores en estas columnas. Luego se inserta un registro en la estructura mediante el método insert de la estructura de índices únicos, que llama al método insert del modo de almacenamiento que este contiene.
+
+### alterTableDropUnique(database, table, indexName)
+
+En este método se valida la existencia de la base de datos *database*, de la tabla *table*, para luego llamar al método delete de la estructura de índices únicos, que llama al método delete del modo de almacenamiento correspondiente, para eliminar el registro del índice único (si existe).
+
+### alterTableAddIndex(database, table, indexName, columns)
+
+En este método se valida la existencia de la base de datos *database*, de las tablas *table* y *tableRef*, y de la igualdad del número de columnas. Luego se inserta un registro en la estructura mediante el método insert de la estructura de índices, que llama al método insert del modo de almacenamiento que este contiene.
+
+### alterTableDropIndex(database, table, indexName)
+
+En este método se valida la existencia de la base de datos *database*, de la tabla *table*, para luego llamar al método delete de la estructura de índices, que llama al método delete del modo de almacenamiento correspondiente, para eliminar el registro del índice (si existe).
 
 ## Administrador de codificación
 
@@ -89,7 +147,26 @@ cuerpo
 
 ## Generador de checksum
 
-cuerpo
+Metodo que recibe una cadenas de texto y retorna un valor hash conforme lo hace SQL, con el uso de la siguiente libreria la cual es proveniente de Pyhton y no necesita de una instalacion o configuracion externa:
+```sh
+import hashlib
+```
+La libreria se utilizo para calcular los valores hash con los algoritmos de MD5 Y SHA256. 
+#### Obtener el valor hash
+Este metodo genera un diggest a partir del contenido de la base de datos incluyendo sus tablas.
+Para obtener el valor hash con los algoritmos se obtiene de la siguiente forma:
+
+```sh
+Con MD5:
+    hashlib.md5("text".encode("encoding"))
+Con SHA256:
+    hashlib.sha256("text".encode("encoding"))
+```
+Donde "text" es la cadena a convertir (todas las tuplas de bases de datos o tablas), "encording" para la codificacion que se esta utilizando. El valor hash que se obtiene tiene que retornarse de forma hexadecimal para eso se utiliza:
+```sh
+.hexdigest()
+```
+
 
 ## Administrador de compresión de datos
 
@@ -265,11 +342,45 @@ def safeModeOn(database: str, table: str) -> int:
 
 ## Generador de diagramas de dependencias
 
-cuerpo
+Diagramas de estructuras de datos basado en GraphViz se generaron diagramas de dependecias para realaciones entre llaves foraneas de tablas y relaciones de llaves primarias y llaves unicas.
+#### Relaciones entre llaves foraneas
+Genera un diagrama que muestra las relaciones que tiene los atributos de las tablas mediante un diccionario de tablas se encuentra cuales tienen llaves foraneas a que tablas hacen referencia.
+
+### Relacion entre llaves primarias y unicas 
+Genera un diagrama que muestra las relaciones que tiene los atributos de una tabla formando dependencias de las llaves unicas y primarias hacia le resto de atributos.
+
 
 ## Reportador gráfico
+En la creacion del reporte grafico se inclino en la creacion de una interfaz interactiva con el usuario para gestionar todo el funcionamiento del programa. Para ello se declino a la utilizacion de la libreia Tkinter la cual proporciono un conjunto de herramientas para la administracion de ventanas.
+```sh
+import tkinter
+```
+Tkinter es un conjunto de funciones que envuelven las implementaciones widgets Tk como clases de Python y tiene ventajas como su velocidad que generalmente se suministra de forma nativa con Python.
 
-cuerpo
+#### Widgets
+Utilizando los widgets Tk y Toplevel donde se proporciona un lienzo (ventanas) y con un conjunto adicional de widgets se utilizaron para darle un excelente diseño en diferentes areas de las ventanas, algunos de estos fueron.
+```sh
+Frame: Espacio donde se almacenan un definido conjunto de widgets.
+Button: Creacion de botones.
+Label: Espacios de textos definidos.
+PhotoImage: Proyeccion de imagenes buscadas en un directorio actual.
+Entry: Entradas de texto por parte del usuario
+```
+#### Clases y atributos
+###### Window Databases
+Ventana que administra todas las gestiones de las bases de datos, utilizando todos los recursos disponibles que ofrece la libreria se logro un diseño sencillo y funcional.
+
+###### Window Tables
+Ventana que permite gestionar todas las funcionalidades sobre las tablas que puede almacenar una base de datos, su funcionalidad proviene de la clase window databases quien acomoda las gestiones de las tablas dependiendo de la base seleccionada previamente.
+
+###### Window Tuples
+Ventana al igual que las otras permite el gestionamiento de los registros almacenados en una tabla, con uso de metodos propios en el sistema se logra adaptar la clase dependiendo de la base de datos y tabla previamente seleccionadas, ademas dando una visualizacion de la estructura utilizada.
+
+###### Window Blockchain
+Ventana que permite la gestiones que tiene el blockchain utililizando la base de datos y tabla donde se accedio. Las opciones para gestionar son las siguientes:
+- SafeModeOn: Activar el modo seguro.
+- SafeModeOff: Desactivar el modo seguro.
+- GraphSafeTable: Visualizar un grafico del blockchain.
 
 ## Diagrama de clases
 
