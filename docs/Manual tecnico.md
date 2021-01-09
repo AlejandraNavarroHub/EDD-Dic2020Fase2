@@ -30,13 +30,17 @@ Este manual pretende dar una explicacion del desarrollo de la libreria, para que
 
 ### General
 
-obj
+Se espera que las nuevas funciones implementadas puedan dar un mejor rendimiento, soporte y alojamiento a la información que se desee guardar en las bases de datos a crear. Considerando encriptaciones, compresiones, entre otras funcionalidades que se detallarán en este manual. 
 
 ### Específicos
 
-- obj
-- obj
-- obj
+- Proporcionar seguridad sobre la información que se almacene en este gestor de bases de datos.
+- Brindar un servicio funcional y beneficioso.
+- Permitir que los recursos consumidos a traves de este gestor sean bajos.
+- Brindar informes gráficos sobre los registros para verificar su integridad.
+- Permitir elegir modos de almacenamiento para que el usuario pueda indicar las estructuras que desea implementar.
+- Beindar al usuario graficos para mejor entendimiento de las funcionalidades de la estructura seleccionada.
+
 
 ## Alcances del proyecto
 
@@ -143,7 +147,23 @@ En este método se valida la existencia de la base de datos *database*, de la ta
 
 ## Administrador de codificación
 
-cuerpo
+Método que recibe nombre de la base de datos a codificar y el tipo de codificación que se aplicará. Para este método se utilizan .encode() y .decode() propios de python. 
+
+El método se encuentra de la siguiente manera: 
+
+```sh
+def alterDatabaseEncoding(database, encoding)
+```
+
+La codificación a utilizar puede ser *ASCII*, *ISO-8859-1* o *UTF8*.
+
+En este método se puede codificar una base de datos que anteriormente estaba codificada, es decir camnbiar por ejemplo de *utf-8* a *iso-8859-1*.
+
+La lógica de dicho método consiste en buscar la base de datos seleccionada, verificar si contiene tablas y en caso de contener tablas, cada una de ellas es recorrida para que sus registros (tuplas) sean codificados.
+
+### Información sobre el método utilizado para el encoding
+
+![encoding](img/encoding.jpg "Encoding")
 
 ## Generador de checksum
 
@@ -170,7 +190,29 @@ Donde "text" es la cadena a convertir (todas las tuplas de bases de datos o tabl
 
 ## Administrador de compresión de datos
 
-cuerpo
+Este administrador permite comprimir una base de datos completa o una unica tabla, al igual que se puede descomprimir una una base de datos completa o una unica tabla, para que funcione de la manera correcta se hacen las comprobaciones adecuadas para que los valores de retorno sean más específicos al ocurrir un error.
+
+Para comprimir se hizo uso de la siguiente libreria, la cual es proveniente de Pyhton y no necesita de una instalacion y/o configuracion externa:
+```sh
+import zlib
+```
+Se realizarón los siguientes 4 métodos en esta sección:
+
+### def alterDatabaseCompress(database, level)
+
+El método se encarga de comprimir cada una de las tablas que contenga la base de datos especificada, se debe indicar el nivel de compresión que se desea. Los niveles permitidos son números del 1 al 9. Por lo que el método es capaz de identificar cuando se ingresan valores inválidos informando estos por medio de los valores de retorno.
+
+### def alterDatabaseDecompress(database)
+El método se encarga de descomprimir cada una de las tablas que contenga la base de datos especificada solo si ha sido comprimida, Si la base de datos no esta comprimida el método es capaz de reconocerlo informando esto por medio de los valores de retorno, así como también cualquier otra falla en el proceso de este.
+
+### def alterTableCompress(database, table, level)
+El método se encarga de comprimir una tabla especifica de la base de datos especificada, se debe indicar el nivel de compresión que se desea. Los niveles permitidos son números del 1 al 9. Por lo que el método es capaz de identificar cuando se ingresan valores inválidos informando estos por medio de los valores de retorno.
+
+### def alterTableDecompress(database, table)
+El método se encarga de descomprimir na tabla especifica de la base de datos especificada solo si ha sido comprimida, Si la base de datos no esta comprimida el método es capaz de reconocerlo informando esto por medio de los valores de retorno, así como también cualquier otra falla en el proceso de este.
+
+### Información sobre el administrador
+![compress](img/compress.jpg "Compress")
 
 ## Administrador de seguridad
 
