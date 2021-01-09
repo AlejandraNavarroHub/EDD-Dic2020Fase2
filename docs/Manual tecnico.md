@@ -62,7 +62,13 @@ En caso del envio de datos, se provee de una funcion de cheksum, la cual permite
 
 ## Administrador de almacenamiento
 
-cuerpo
+El funcionamiento del administrador de almacenamiento fue detallado en el [manual técnico](https://github.com/tytusdb/tytus/blob/main/storage/team15/docs/Manual%20tecnico.md "Fase 1") de la fase 1 del proyecto.
+
+Además, se crea una estructura auxiliar que consiste en una lista de bases de datos (diccionarios), que además de almacenar los metadatos de las bases de datos almacenadas, contiene una lista de tablas (diccionarios). Dichas tablas contienen los metadatos de las tablas almacenadas, y 3 estructuras para almacenar índices.
+
+![AUXILIAR](img/auxiliar_str.png "Estructura auxiliar")
+
+La estructura se mantiene actualizada localmente en el archivo *data/data*, haciendo uso de la archivo *serealizar.py*.
 
 ## Administrador del modo de almacenamiento
 
@@ -81,7 +87,47 @@ Todos los cambios se ven almacenados en los directorios dentro de la carpeta *da
 
 ## Administrador de índices
 
-cuerpo
+Cuando se crea una tabla con el método createTable automáticamente se crean 3 estructuras adicionales:
+
+- Estructura de llaves foráneas
+- Estructura de índices únicos
+- Estructura de índices
+
+Cuyo modo de estructuración corresponde al modo de la tabla. En dichas estructuras se almacenan los índices correspondientes, siendo el nombre del índice la llave primaria de dicha estructura. Dicho modo de almacenamiento cambia cuando el modo de almacenamiento de la tabla cambia.
+
+Las clases de las estructuras se encuentran en sus propios archivos:
+
+- ForeignKeyStr
+- UniqueIndexStr
+- IndexStr
+
+Al almacenar un objeto de dichas clases en una tabla se crea en su interior una estructura del modo especificado, aprovechando los modos que estos contienen (insert, delete, extractRow, etc...)
+
+Los objetos creados con estas clases se almacenan en el archivo *data/data*, serializando tras cada cambio pertinente a estos objetos.
+
+### alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef)
+
+En este método se valida la existencia de la base de datos *database*, de las tablas *table* y *tableRef*, y de la igualdad del número de columnas. Luego se inserta un registro en la estructura mediante el método insert de la estructura de llaves foráneas, que llama al método insert del modo de almacenamiento que este contiene.
+
+### alterTableDropFK(database, table, indexName)
+
+En este método se valida la existencia de la base de datos *database*, de la tabla *table*, para luego llamar al método delete de la estructura de llaves foráneas, que llama al método delete del modo de almacenamiento correspondiente, para eliminar el registro de la llave foránea (si existe).
+
+### alterTableAddUnique(database, table, indexName, columns)
+
+En este método se valida la existencia de la base de datos *database*, de las tablas *table* y *tableRef*, además de la unicidad de datos de las columnas *columns* especificadas, es decir, que no se repitan valores en estas columnas. Luego se inserta un registro en la estructura mediante el método insert de la estructura de índices únicos, que llama al método insert del modo de almacenamiento que este contiene.
+
+### alterTableDropUnique(database, table, indexName)
+
+En este método se valida la existencia de la base de datos *database*, de la tabla *table*, para luego llamar al método delete de la estructura de índices únicos, que llama al método delete del modo de almacenamiento correspondiente, para eliminar el registro del índice único (si existe).
+
+### alterTableAddIndex(database, table, indexName, columns)
+
+En este método se valida la existencia de la base de datos *database*, de las tablas *table* y *tableRef*, y de la igualdad del número de columnas. Luego se inserta un registro en la estructura mediante el método insert de la estructura de índices, que llama al método insert del modo de almacenamiento que este contiene.
+
+### alterTableDropIndex(database, table, indexName)
+
+En este método se valida la existencia de la base de datos *database*, de la tabla *table*, para luego llamar al método delete de la estructura de índices, que llama al método delete del modo de almacenamiento correspondiente, para eliminar el registro del índice (si existe).
 
 ## Administrador de codificación
 
