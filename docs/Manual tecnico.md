@@ -163,7 +163,7 @@ La lógica de dicho método consiste en buscar la base de datos seleccionada, ve
 
 ### Información sobre el método utilizado para el encoding
 
-![encoding](img/encoding.jpg "Encoding")
+![encoding](img/encoding.JPG "Encoding")
 
 ## Generador de checksum
 
@@ -212,7 +212,7 @@ El método se encarga de comprimir una tabla especifica de la base de datos espe
 El método se encarga de descomprimir na tabla especifica de la base de datos especificada solo si ha sido comprimida, Si la base de datos no esta comprimida el método es capaz de reconocerlo informando esto por medio de los valores de retorno, así como también cualquier otra falla en el proceso de este.
 
 ### Información sobre el administrador
-![compress](img/compress.jpg "Compress")
+![compress](img/compress.JPG "Compress")
 
 ## Administrador de seguridad
 
