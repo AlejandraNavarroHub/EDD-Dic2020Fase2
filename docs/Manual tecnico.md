@@ -50,15 +50,27 @@ En caso del envio de datos, se provee de una funcion de cheksum, la cual permite
 
 ## Requerimentos funcionales
 
-- req
-- req
-- req
+- Los nombres de base de datos deben respetar las reglas de nombrado.
+- Los nombres de tablas deben respetar las reglas de nombrado.
+- Los datos ingresados deben cumplir con la codificación de la base de datos.
+- Para crear una base de datos debe enviar un nombre, el cual no debe existir ya almacenado.
+- Para crear una tabla debe enviar el nombre de la base de datos, nombre de la tabla y número de columnas, dicho nombre no debe existir ya almacenado.
+- La interfaz gráfica es un componente que aprovecha la librería, para su uso se deberá llamar de forma independiente a TytusStorage.
+- Debe tener graphviz para poder observar la estructura de cada almacenamiento de forma grafica por medio de la interfaz gráfica.
 
 ## Atributos del sistema
 
-- at
-- at
-- at
+- Todas las estructuras proveerán un alojamiento seguro y eficiente.
+- TytusStorage es una librería propia para que sea más fácil de implementar.
+- Las funciones existentes retornaran valores numéricos para informar el estado de la operación.
+- Los valores de retorno se podrán consultar en el docstring de TytusStorage
+- Las estructuras serán capaces de evitar la duplicidad de datos.
+- Brindará una interfaz gráfica para visualizar el funcionamiento interno de las estructuras, entre otras cosas.
+- Serealizará los objetos creados para evitar perdidas de datos.
+- La librería implementa métodos de serealización que ayuda a la eficiencia y fluidez del sistema.
+- Proporcionará métodos de detección de cambios, en aras de mantener la información segura.
+- Proporcionará maneras eficaces de reducir el tamaño de la información.
+- TytusStorage podrá cambiar entre métodos sin pérdida de datos.
 
 ## Administrador de almacenamiento
 
